@@ -1,0 +1,62 @@
+{
+	"name": "jinx-rust",
+	"version": "0.0.123",
+	"description": "Rust parser",
+	"repository": "https://github.com/jinxdash/jinx-rust",
+	"author": "jinxdash <jinxdash.github@gmail.com> (https://github.com/jinxdash)",
+	"keywords": [
+		"rust",
+		"parser",
+		"AST",
+		"IDE"
+	],
+	"license": "MIT",
+	"type": "module",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./utils": {
+			"require": "./utils/index.cjs",
+			"import": "./utils/index.js",
+			"types": "./utils/index.d.ts"
+		}
+	},
+	"files": [
+		"dist",
+		"utils",
+		"package.json",
+		"LICENSE"
+	],
+	"scripts": {
+		"e": "node --loader ts-node/esm/transpile-only --experimental-specifier-resolution=node --no-warnings",
+		"build": "pnpm run e -- ./scripts/build.ts && pnpm run test-build",
+		"test-build": "pnpm run e -- ./tests/test.build.ts",
+		"test-print-samples": "pnpm run e -- ./tests/print.ts",
+		"codegen-parser": "pnpm run e -- ./scripts/parser.codegen.ts",
+		"dev-repl": "pnpm run e -- ./scripts/dev.repl.ts",
+		"dev-parse-local": "pnpm run e -- ./scripts/dev.parser.ts"
+	},
+	"devDependencies": {
+		"@types/node": "^18.0.6",
+		"@types/prettier": "^2.6.3",
+		"@typescript-eslint/typescript-estree": "^5.30.7",
+		"prettier": "^2.7.1",
+		"ts-node": "^10.9.1",
+		"tsup": "^6.1.3",
+		"typescript": "^4.7.4"
+	},
+	"prettier": {
+		"printWidth": 140,
+		"semi": true,
+		"tabWidth": 4,
+		"useTabs": true,
+		"endOfLine": "lf"
+	}
+}

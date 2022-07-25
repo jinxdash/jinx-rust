@@ -1,0 +1,18 @@
+# npm
+/node_modules/
+
+# cache
+/.rollup.cache/
+*.tsbuildinfo
+
+# debug
+*.temp
+*.temp.*
+*.temp/
+
+# repl
+/repl/
+
+# build
+/dist/
+/utils/

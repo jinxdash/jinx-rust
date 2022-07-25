@@ -1,0 +1,9 @@
+{
+	"extends": "../tsconfig.base.json",
+	"include": ["../tests", "../scripts"],
+	"references": [{ "path": "../tsconfig.json" }],
+	"compilerOptions": {
+		"types": ["@types/node", "@types/prettier", "@typescript-eslint/typescript-estree"],
+		"rootDir": ".."
+	}
+}
