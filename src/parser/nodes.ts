@@ -973,7 +973,14 @@ export class DocCommentAttribute extends BaseNode<15> implements DelimitedSequen
 	inner: boolean;
 	line: boolean;
 	get value() { return this.loc.sliceText(3, this.line ? undefined : -2); }
-	get segments() { return createDocCommentAttributeTokens(this); }
+	get segments() {
+		const loc = new Loc(this.loc.src, start(this) + 3, end(this) + (this.line ? 0 : -2));
+		return createLocArray(
+			DelimKind.None,
+			loc, //
+			[mockNode(NodeType.Literal, loc.clone(), { kind: LiteralKind.String, value: this.value })]
+		);
+	}
 }
 
 export class MacroInvocation extends BaseNode<16> implements DelimitedSequence<MacroInvokeSegment> {
@@ -2091,18 +2098,6 @@ export class TypeParenthesized<T extends TypeNode | TypeTraitBound = TypeNode | 
 {
 	// (typeExpression)
 	typeExpression: T;
-}
-
-//#endregion ===============================================================================================================================..--'
-//#region ===============================================[        Helpers        ]==========================================================``--.
-
-function createDocCommentAttributeTokens(node: DocCommentAttribute): LocArray<Literal, "None"> {
-	const loc = new Loc(node.loc.src, start(node) + 3, end(node) + (node.line ? 0 : -2));
-	return createLocArray(
-		DelimKind.None,
-		loc, //
-		[mockNode(NodeType.Literal, loc.clone(), { kind: LiteralKind.String, value: node.value })]
-	);
 }
 
 //#endregion ===============================================================================================================================..--'
