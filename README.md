@@ -99,7 +99,7 @@ each_node(target, (child, parent) => {
 ## Gotchas when working with `jinx-rust`
 
 
-- When a node has outer attributes, its start location expands to them, and its own start position is saved under `node.loc.ownStart`   
+- When a node has outer attributes, its start location expands to include them. Its own start position is saved under `node.loc.ownStart`   
 ```ts
 import { Node } from "jinx-rust";
 import { start, end, ownStart, has_OuterAttributes, hasOwnStart } from "jinx-rust/utils";
