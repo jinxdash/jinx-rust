@@ -44,12 +44,12 @@
 		"dev-parse-local": "pnpm run e -- ./scripts/dev.parser.ts"
 	},
 	"devDependencies": {
-		"@types/node": "^18.0.6",
+		"@types/node": "^18.6.1",
 		"@types/prettier": "^2.6.3",
-		"@typescript-eslint/typescript-estree": "^5.30.7",
+		"@typescript-eslint/typescript-estree": "^5.31.0",
 		"prettier": "^2.7.1",
 		"ts-node": "^10.9.1",
-		"tsup": "^6.1.3",
+		"tsup": "^6.2.0",
 		"typescript": "^4.7.4"
 	},
 	"prettier": {
