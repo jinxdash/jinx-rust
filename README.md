@@ -114,4 +114,4 @@ ownStart(node) === (node.loc.ownStart ?? node.loc[0]);
 
 ## Projects using `jinx-rust`
 
-- [`prettier-plugin-rust`]("https://github.com/jinxdash/prettier-plugin-rust")
+- [`prettier-plugin-rust`](https://github.com/jinxdash/prettier-plugin-rust)
