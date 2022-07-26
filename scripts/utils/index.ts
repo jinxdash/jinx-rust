@@ -79,8 +79,14 @@ export function rs_createREPL(
 		}
 	} else {
 		let current = spawn_repl();
-		watch(path.join(cwd, depsPath), { recursive: true }, () => {
-			console.log("% reloading REPL %");
+		let last_info = "";
+		let last_reload = 0;
+		watch(path.join(cwd, depsPath), { recursive: true }, (event, filename) => {
+			const t = Date.now();
+			const info = `${event}:${filename}`;
+			if (last_info === (last_info = info) && t - last_reload < 1000) return;
+			console.log(`[${info}] reloading REPL`);
+			last_reload = t;
 			current.kill();
 			current = spawn_repl();
 		});

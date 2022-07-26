@@ -67,7 +67,7 @@ function toSnippet<T extends Node | LocArray>(target: Located, READ_SNIPPET: (sn
 	return withParserState(target.loc.src, ownStart(target), () => Snippet.read(target, READ_SNIPPET));
 }
 
-export function parseFile(code: string, options: ParserOptions): Nodes.SourceFile {
+export function parseFile(code: string, options: ParserOptions = {}): Nodes.SourceFile {
 	checkOptions(options);
 	return SourceFile.read(code, options);
 }

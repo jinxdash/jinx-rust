@@ -36,7 +36,7 @@
 	],
 	"scripts": {
 		"e": "node --loader ts-node/esm/transpile-only --experimental-specifier-resolution=node --no-warnings",
-		"build": "pnpm run e -- ./scripts/build.ts && pnpm run test-build",
+		"build": "pnpm run codegen-parser && pnpm run e -- ./scripts/build.ts && pnpm run test-build",
 		"test-build": "pnpm run e -- ./tests/test.build.ts",
 		"test-print-samples": "pnpm run e -- ./tests/print.ts",
 		"codegen-parser": "pnpm run e -- ./scripts/parser.codegen.ts",

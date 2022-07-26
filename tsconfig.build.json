@@ -11,7 +11,8 @@
 		// "rootDirs": ["src", "dist"],
 		"composite": false,
 		"isolatedModules": false,
-		"preserveConstEnums": false
+		"preserveConstEnums": false,
+		"removeComments": false
 		// "removeComments": false
 	}
 }

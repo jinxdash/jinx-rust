@@ -59,7 +59,7 @@ export const NODES_FILEPATH = "src/parser/nodes.ts";
 export function getParsedNodesFile(): ParsedNodesFile {
 	const DEBUG_NODESFILES = false;
 
-	const { ast } = tsParse(read_file(NODES_FILEPATH), { filePath: NODES_FILEPATH });
+	const { ast } = tsParse(read_file(NODES_FILEPATH), { filePath: NODES_FILEPATH, comment: true });
 
 	if (DEBUG_NODESFILES) write_file_temp("scripts/nodes.tsAst", ast);
 
@@ -211,7 +211,17 @@ export function getParsedNodesFile(): ParsedNodesFile {
 					getter: "kind" in Property && Property.kind === "get",
 				};
 			}),
-		};
+			comments:
+				ast.comments
+					?.filter(
+						(comment) =>
+							node.range[0] < comment.range[0] &&
+							comment.range[1] < node.range[1] &&
+							(!node.declaration.body.body.length || comment.range[1] < node.declaration.body.body[0].range[0]) &&
+							!(comment.type === "Block" && comment.value.startsWith("*"))
+					)
+					.map((comment) => comment.value) ?? [],
+		} as FormattedNode;
 	});
 
 	if (DEBUG_NODESFILES) write_file_temp("scripts/nodes.processed", parsedNodesFile);
@@ -261,6 +271,7 @@ export interface FormattedNode {
 	nodeType: number;
 	implements: string[];
 	properties: FormattedNodeProperty[];
+	comments: string[];
 }
 interface FormattedNodeProperty {
 	name: string;
@@ -446,6 +457,9 @@ export function insert_at(pos: number, content: string): TSEdit {
 }
 export function append_to(node: { range: [number, number] }, content: string): TSEdit {
 	return { content, start: node.range[1], end: node.range[1] };
+}
+export function prepend_to(node: { range: [number, number] }, content: string): TSEdit {
+	return { content, start: node.range[0], end: node.range[0] };
 }
 export function slice_node(code: string, node: { range: [number, number] }) {
 	return code.slice(node.range[0], node.range[1]);

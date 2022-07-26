@@ -1036,7 +1036,7 @@ export class MacroDeclaration extends BaseNode<18> implements Identifiable, Attr
 
 export class PubSpecifier extends BaseNode<23> {
 	// pub(in? location)? ...
-	// crate_visibility_modifier | crate ...
+	// {@link Feature.crate_visibility_modifier} `crate ...` (location is Identifier<"crate">)
 	location: IdentifierOrItemPath | undefined; // crate | self | super | in ... (must start with 'crate' | 'self' | 'super' from edition 2018)
 }
 
@@ -1202,6 +1202,9 @@ export class FunctionDeclaration
 	declare async?: true;
 	declare unsafe?: true;
 	declare extern?: ExternSpecifier;
+	toJSON() {
+		return { "parameters.self": this.parameters.self, ...this };
+	}
 }
 
 /**/ export interface FunctionDeclarationParameters extends LocArray<FunctionParameterDeclaration | FunctionSpread, "()"> {
@@ -1269,7 +1272,6 @@ export class TupleStructDeclaration extends BaseNode<43> implements Identifiable
 }
 
 /**/ export class TupleStructItemDeclaration extends BaseNode<45> implements TypeAnnotationTarget, AttributeTarget, PubTarget {
-	// typeAnnotation
 	typeAnnotation: TypeNode;
 	declare attributes?: AttributeOrDocComment[];
 	declare pub?: PubSpecifier;

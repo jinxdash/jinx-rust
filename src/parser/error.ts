@@ -62,15 +62,15 @@ interface CFLoc {
 }
 
 interface CFLocSpan {
+	url: string;
 	start: CFLoc;
 	end?: CFLoc;
 }
 
 export interface ParserError extends Error {
 	loc: CFLocSpan;
-	url: string;
 	ctx?: any[];
-	parserState?: { [state_name: string]: unknown };
+	/** devonly */ parserState?: { [state_name: string]: unknown };
 }
 
 const THIS_FILE_NAME = "error.ts";
@@ -83,7 +83,7 @@ export namespace exit {
 	export function at(pos: number | Located, msg: string, ...ctx: any[]): never {
 		const code = GET_SOURCETEXT();
 
-		const { text, loc, url } = printCodeError(msg, code, pos, GET_SOURCEFILEPATH());
+		const { text, loc } = printCodeError(msg, code, pos, GET_SOURCEFILEPATH());
 
 		const error = createCustomError({
 			message: msg,
@@ -107,12 +107,9 @@ export namespace exit {
 					});
 				}
 			},
-			style: {
-				callee: (callee) => (callee.endsWith(".read") || callee.startsWith("new ") ? color.blue : color.cyan),
-			},
+			style: { callee: (callee) => (callee.endsWith(".read") || callee.startsWith("new ") ? color.blue : color.cyan) },
 		}) as ParserError;
 
-		error.url = url;
 		error.loc = loc;
 		error.ctx = ctx;
 		error.toString = function () {
@@ -190,12 +187,12 @@ function printCodeError(message: string, code: string, pos: Located | number, fi
 					SEPARATOR
 			) + `ParserError at ${color.blue(color.underline(url))}\n`,
 		loc: {
+			url,
 			start: {
 				line: line + 1,
 				column: char + 1,
 			},
 		},
-		url,
 	};
 
 	function hasIndex(data: { length: number }, i: number) {

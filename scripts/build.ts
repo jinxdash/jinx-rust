@@ -9,6 +9,7 @@ import {
 	getIdentifierName,
 	getParsedNodesFile,
 	insert_at,
+	prepend_to,
 	remove_node,
 	replace_node,
 	TSEdit,
@@ -42,10 +43,30 @@ await Promise.all([
 			...["dist/index.js", "dist/index.cjs"].map((filepath) =>
 				update_file(filepath, (prev) => transform_parser(prev), { sync: false, prettier: true })
 			),
-			update_file("dist/index.d.ts", (prev) => prev.replaceAll("declare const enum", "declare enum"), {
-				sync: false,
-				prettier: true,
-			}),
+			update_file(
+				"dist/index.d.ts",
+				(prev) =>
+					ts_edit_code(prev, function* (body) {
+						for (const node of body) {
+							if (node.type === NT.ClassDeclaration) {
+								const target = Spec.Nodes.find((Node) => Node.name === node.id.name);
+								const l = target?.comments.length;
+								if (l) {
+									yield prepend_to(
+										node,
+										(l === 1 ? "/** " : "/**\n * ") +
+											target.comments.map((c) => c.replace(/\*\//g, "* /").trim()).join("  \n * ") +
+											(l === 1 ? " */\n" : "\n */\n")
+									);
+								}
+							}
+						}
+					}).replaceAll("declare const enum", "declare enum"),
+				{
+					sync: false,
+					prettier: false,
+				}
+			),
 		])
 	),
 	build({
@@ -63,7 +84,10 @@ await Promise.all([
 		outDir: "utils",
 		external: [/\/parser\/?/],
 	}).then(() =>
-		update_file("utils/index.d.ts", (prev) => prev.replaceAll("../../parser/nodes", "../dist/index"), { sync: false, prettier: true })
+		update_file("utils/index.d.ts", (prev) => prev.replaceAll("../../parser/nodes", "../dist/index").replace(/\{\n/g, "{ "), {
+			sync: false,
+			prettier: true,
+		})
 	),
 	write_file(
 		`utils/package.json`,

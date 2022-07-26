@@ -636,7 +636,7 @@ function _hasSelf(value: any[]): value is FunctionDeclarationParameters & { self
 	return "self" in value && is_defined((value as FunctionDeclarationParameters).self);
 }
 
-/** Iterate Object.keys to find childNodes, as opposed to just getting known properties of that NodeType */
+/** Iterate Object.keys to find childNodes, as opposed to known properties of that NodeType */
 export function getActualNodeChildren(node: Node) {
 	const children: Node[] = [];
 	for (var key in node) {
