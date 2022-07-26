@@ -1,6 +1,6 @@
 {
 	"name": "jinx-rust",
-	"version": "0.0.123",
+	"version": "0.1.4",
 	"description": "Rust parser",
 	"repository": "https://github.com/jinxdash/jinx-rust",
 	"author": "jinxdash <jinxdash.github@gmail.com> (https://github.com/jinxdash)",
