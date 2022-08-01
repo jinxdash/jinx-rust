@@ -25,4 +25,5 @@ pub fn main() {
         while (return) { if (return) { match (return) { 1 => { if (return) { return } else { return } } _ => { return } }; } else if (return) { return; } }
         if (return) { break; }
     }
+	let () = if 0 {} else { return }
 }

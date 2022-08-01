@@ -2,17 +2,15 @@
 #![feature(let_else)]    Attribute
           (let_else)     DelimGroup                                                                                                       */
 
-let () = if true {} else { return }                                                                                                       /*
-let•()•=•if•true•{}•else•{•return•}    LetVariableDeclaration
-    ()                                 TuplePattern
-         if•true•{}•else•{•return•}    IfBlockExpression
-            true                       Literal
-                         {•return•}    BlockExpression
-                           return      ExpressionStatement, ReturnExpression                                                              */
+let a = 1 else { 2 };                                                                                                                     /*
+let•a•=•1•else•{•2•};    LetVariableDeclaration
+        1                Literal
+               {•2•}     BlockExpression
+                 2       ExpressionStatement, Literal                                                                                     */
 
 // Discarded Nodes: 0
-// Parsed Nodes: 13
+// Parsed Nodes: 12
 // state_rollbacks: 0
-// Total '.charCodeAt()' calls: 75 (29% re-reads)
-// Unnecessary 'skip_whitespace()' calls: 3
+// Total '.charCodeAt()' calls: 57 (27% re-reads)
+// Unnecessary 'skip_whitespace()' calls: 4
 // source: "../../samples/features/let_else.rs"

@@ -1,3 +1,3 @@
 #![feature(let_else)]
 
-let () = if true {} else { return }
+let a = 1 else { 2 };

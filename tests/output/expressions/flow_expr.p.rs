@@ -189,12 +189,19 @@ pub                 PubSpecifier                                                
                       break       BreakExpression                                                                                         */
     }                                                                                                                                     /*
 ••••}    </ExpressionStatement>, </LoopBlockExpression>                                                                                   */
+	let () = if 0 {} else { return }                                                                                                      /*
+    let•()•=•if•0•{}•else•{•return•}    LetVariableDeclaration
+        ()                              TuplePattern
+             if•0•{}•else•{•return•}    IfBlockExpression
+                0                       Literal
+                          {•return•}    BlockExpression
+                            return      ExpressionStatement, ReturnExpression                                                             */
 }                                                                                                                                         /*
 }    </FunctionDeclaration>                                                                                                               */
 
 // Discarded Nodes: 7
-// Parsed Nodes: 196
+// Parsed Nodes: 203
 // state_rollbacks: 1
-// Total '.charCodeAt()' calls: 1121 (26% re-reads)
+// Total '.charCodeAt()' calls: 1164 (26% re-reads)
 // Unnecessary 'skip_whitespace()' calls: 57
 // source: "../../samples/expressions/flow_expr.rs"
