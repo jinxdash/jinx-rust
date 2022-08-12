@@ -1,6 +1,6 @@
 # jinx-rust &middot; ![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg) [![npm version](https://img.shields.io/npm/v/jinx-rust.svg?style=flat)](https://www.npmjs.com/package/jinx-rust) ![GitHub Repo stars](https://img.shields.io/github/stars/jinxdash/jinx-rust?style=social) [![Twitter Follow](https://img.shields.io/twitter/follow/jinxdash?style=social)](https://twitter.com/jinxdash)
 
-`jinx-rust` is a [Rust](https://www.rust-lang.org/) parser written in Typescript; it enables the developement of Rust Tooling in Typescript.
+`jinx-rust` is a [Rust](https://www.rust-lang.org/) parser written in Typescript; it enables the development of Rust Tooling in Typescript.
 
 Example project using `jinx-rust`: [Prettier Rust formatter](https://github.com/jinxdash/prettier-plugin-rust)
 
