@@ -99,7 +99,7 @@ each_node(target, (child, parent) => {
 });
 ```
 
-## Gotchas working with `jinx-rust`
+## Gotchas
 
 - When a node has outer attributes, its start location expands to include them,  
   its own start positions is saved under `node.loc.ownStart`
