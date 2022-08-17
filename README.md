@@ -83,6 +83,10 @@ const block = rs.toBlockBody(node.tokens).ast; // StatementNode[]
 const tokens = rs.toTokens(node).ast; // TokenNode[]
 ```
 
+## Nightly features
+
+`jinx-rust` supports 23 nightly features. The full list can be found in `src/parser/nodes.ts` under `enum Feature`. ([link](https://github.com/jinxdash/jinx-rust/blob/5fcd69e007e8401220db94710c5a879d686ee795/src/parser/nodes.ts#L93-L139))
+
 ## `jinx-rust/utils`
 
 `jinx-rust/utils` is automatically included on install. It is a library of (mostly) auto-generated helpers from the parser's type declarations. E.g. tree traversing helpers, `is_{Type}(node)` functions for every type declared exported by the parser.
