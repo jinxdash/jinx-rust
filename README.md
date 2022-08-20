@@ -74,8 +74,7 @@ Attributes and Macro invocation arguments are returned as tokens in `rs.parseFil
 ```ts
 import { rs, MacroInvocation } from "jinx-rust";
 
-const node = rs.parseFile("foo!(123);").program.ast[0]
-  .expression as MacroInvocation;
+const node = rs.parseFile("foo!(123);").program.ast[0].expression as MacroInvocation;
 
 const args = rs.toCallExpressionArguments(node.tokens).ast; // ExpressionNode[]
 const block = rs.toBlockBody(node.tokens).ast; // StatementNode[]
