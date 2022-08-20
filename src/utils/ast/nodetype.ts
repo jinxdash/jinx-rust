@@ -203,6 +203,7 @@ import {
 	TypeTuple,
 	UnaryExpression,
 	UnaryPattern,
+	UnaryType,
 	UnassignedExpression,
 	UnionDeclaration,
 	UnionPattern,
@@ -1491,6 +1492,19 @@ export function is_UnaryPattern(node: Node): node is UnaryPattern {
 		case 112:
 		case 113:
 		case 114:
+			return true;
+		default:
+			return false;
+	}
+}
+export function is_UnaryType(node: Node): node is UnaryType {
+	// prettier-ignore
+	AssertTypesEq<UnaryType, TypeReference | TypeDereferenceMut | TypeDereferenceConst>();
+	__DEV__: assert.isNode(node);
+	switch (node.nodeType) {
+		case 139:
+		case 140:
+		case 141:
 			return true;
 		default:
 			return false;

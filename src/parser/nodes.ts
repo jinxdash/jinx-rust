@@ -442,6 +442,7 @@ export type FlowControlExpression = ReturnExpression | ContinueExpression | Brea
 // prettier-ignore
 export type UnaryExpression = NotExpression | MinusExpression | ReferenceExpression | DereferenceExpression | RawReferenceExpression | BoxExpression;
 export type UnaryPattern = ReferencePattern | BoxPattern | MinusPattern;
+export type UnaryType = TypeReference | TypeDereferenceMut | TypeDereferenceConst;
 
 export type PostfixExpression = UnwrapExpression | AwaitExpression;
 
