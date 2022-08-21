@@ -1,4 +1,5 @@
 import {
+	check_ahead,
 	currChar,
 	edgecase_stepback,
 	ES_ctx_exceptStructFormExpression,
@@ -25,6 +26,7 @@ import { is_XID_Continue, is_XID_Start } from "../../utils/enum";
 import { is_UNICODE_XID_Start } from "../../utils/unicode";
 import { assert, exit } from "../error";
 import { PRCD, TK } from "../nodes";
+import { skip_whitespace } from "./whitespace";
 
 // <codegen> edits discriminants
 export const enum RHS {
@@ -249,6 +251,13 @@ function will_actually_read_bString() {
 		default:
 			return false; // boop
 	}
+}
+
+function will_actually_read_macro_rules() {
+	// macro_rules••••••••••••••••
+	//           ^- You are here
+
+	return uc_next_match(CharCode["!"]) || check_ahead(() => (skip_whitespace(), match(CharCode["!"])));
 }
 
 // #valid_identifier_keywords
@@ -587,7 +596,7 @@ export function kwTree(): Keyword {
 										uc_next_match(CharCode["e"]) &&
 										uc_next_match(CharCode["s"])
 									) {
-										if (uc_next_match(CharCode["!"])) {
+										if (will_actually_read_macro_rules()) {
 											return Keyword["macro_rules!"];
 										}
 									}

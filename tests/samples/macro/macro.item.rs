@@ -1,3 +1,4 @@
+macro_rules ! spaced {}
 macro_rules! brace { () => { } ; }
 macro_rules! bracket[() => { } ;];
 macro_rules! paren(() => { } ;);

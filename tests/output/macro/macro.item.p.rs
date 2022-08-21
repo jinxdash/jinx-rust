@@ -1,3 +1,5 @@
+macro_rules ! spaced {}                                                                                                                   /*
+macro_rules•!•spaced•{}    MacroRulesDeclaration                                                                                          */
 macro_rules! brace { () => { } ; }                                                                                                        /*
 macro_rules!•brace•{•()•=>•{•}•;•}    MacroRulesDeclaration
                      ()•=>•{•}        MacroRuleDeclaration                                                                                */
@@ -38,8 +40,8 @@ pub(crate)                                                   PubSpecifier
                                                  $arg        McIdentifier                                                                 */
 
 // Discarded Nodes: 0
-// Parsed Nodes: 45
-// state_rollbacks: 5
-// Total '.charCodeAt()' calls: 351 (23% re-reads)
-// Unnecessary 'skip_whitespace()' calls: 14
+// Parsed Nodes: 47
+// state_rollbacks: 8
+// Total '.charCodeAt()' calls: 388 (25% re-reads)
+// Unnecessary 'skip_whitespace()' calls: 16
 // source: "../../samples/macro/macro.item.rs"

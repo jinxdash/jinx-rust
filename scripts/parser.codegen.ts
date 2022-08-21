@@ -49,7 +49,7 @@ const KEYWORD_SCANNER_SPEC = [
 	// # Not keywords
 	{ name: "Underscore", match: "_" },
 	{ name: "RawIdentifier", match: "r#", eval: on_match_RawIdentifier },
-	{ name: "macro_rules!", match: "macro_rules", eval: `if (uc_next_match(${CharCode(33)})) { return ${Keyword("macro_rules!")}; }` },
+	{ name: "macro_rules!", match: "macro_rules", eval: `if (will_actually_read_macro_rules()) { return ${Keyword("macro_rules!")}; }` },
 
 	{ name: "StringLiteral", match: "b", eval: ` if (will_actually_read_bString()) { return ${Keyword("StringLiteral")}; }` },
 	{ name: "StringLiteral", match: "br", eval: `if (will_actually_read_rString()) { return ${Keyword("StringLiteral")}; }` },

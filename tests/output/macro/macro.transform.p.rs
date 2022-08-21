@@ -15245,5 +15245,5 @@ macro•complex_nonterminal($nt_item:•item)•{↲    <MacroDeclaration>
 // Parsed Nodes: 16382
 // state_rollbacks: 1
 // Total '.charCodeAt()' calls: 108457 (11% re-reads)
-// Unnecessary 'skip_whitespace()' calls: 5426
+// Unnecessary 'skip_whitespace()' calls: 5428
 // source: "../../samples/macro/macro.transform.rs"
