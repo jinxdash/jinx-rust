@@ -32,7 +32,15 @@ type anyfunction<A extends any[] = unknown[], R = unknown> = (...args: A) => R;
 type objlike = object | anyfunction;
 type anymap<K extends unknown = unknown, V extends unknown = unknown> = K extends objlike ? Map<K, V> | WeakMap<K, V> : Map<K, V>;
 
+let __parser_maybe_exit: ParserMaybeExit;
+type ParserMaybeExit = (message: string, ctx: any[]) => void | never;
+export function __SET_PARSER_ERROR_MNGR(_maybe_exit: ParserMaybeExit) {
+	__DEV__: assert(!__parser_maybe_exit);
+	__parser_maybe_exit = _maybe_exit;
+}
+
 export function exit(message: string, ...ctx: any[]): never {
+	__parser_maybe_exit?.(message, ctx);
 	if (ctx.length > 0) console.log("Error context:", { ...ctx });
 	throw createCustomError({ message });
 }

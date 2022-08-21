@@ -11,10 +11,21 @@ import {
 	print_string,
 	strChar,
 	urlAt,
+	__SET_PARSER_ERROR_MNGR,
 } from "../utils/common";
 import { createCustomError } from "../utils/debug";
 import { Located, Node, NodeType, NTMap } from "./nodes";
-import { check_ahead, currChar, GET_KEYWORD_NAME, GET_LENGTH, GET_POSITION, GET_SOURCEFILEPATH, GET_SOURCETEXT, nStep } from "./state";
+import {
+	check_ahead,
+	currChar,
+	GET_KEYWORD_NAME,
+	GET_LENGTH,
+	GET_POSITION,
+	GET_SOURCEFILEPATH,
+	GET_SOURCETEXT,
+	IS_PARSING,
+	nStep,
+} from "./state";
 import { devonly_getDebugState } from "./state/debug";
 import { Keyword, kwTree } from "./state/scanner";
 
@@ -133,6 +144,10 @@ export namespace exit {
 		expected();
 	}
 }
+
+__SET_PARSER_ERROR_MNGR(function (msg, ctx) {
+	if (IS_PARSING()) exit(msg, ...ctx);
+});
 
 // prettier-ignore
 export function assert(predicate: boolean, err?: string, ...ctx: any[]): asserts predicate {
