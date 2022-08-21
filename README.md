@@ -76,8 +76,8 @@ import { rs, MacroInvocation } from "jinx-rust";
 
 const node = rs.parseFile("foo!(123);").program.ast[0].expression as MacroInvocation;
 
-const args = rs.toCallExpressionArguments(node.tokens).ast; // ExpressionNode[]
-const block = rs.toBlockBody(node.tokens).ast; // StatementNode[]
+const args = rs.toCallExpressionArguments(node.segments).ast; // ExpressionNode[]
+const block = rs.toBlockBody(node.segments).ast; // StatementNode[]
 
 const tokens = rs.toTokens(node).ast; // TokenNode[]
 ```
