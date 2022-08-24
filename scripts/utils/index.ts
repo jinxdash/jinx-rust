@@ -152,7 +152,10 @@ export function createPrettierPrinter(prettier_config: prettier.Config & { parse
 				};
 
 				function getPrettierConfig(filepath: string) {
-					return { ...prettier_config, filepath };
+					// custom config from shebang e.g. "#!{ printWidth: 120 }"
+					return "shebang" in ast && ast.shebang.value[0] === "{" //
+						? { ...prettier_config, filepath, ...eval(`(${ast.shebang.value})`) }
+						: { ...prettier_config, filepath };
 				}
 
 				function rs_prettier_format(code: string, filepath: string) {
