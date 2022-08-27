@@ -228,14 +228,10 @@ macro_rules! c {
         $($rest:tt)*
     } => {};
     (($expr:ident) as $t:ty, @$snapshot:literal) => {};
-    ($b : block, $e : expr, $i : ident, $it : item, $l : lifetime, $lit :
-     literal, $m : meta, $p : pat, $pth : path, $s : stmt, $tt : tt, $ty : ty,
-     $vis : vis) => { } ;
 	($(#[$smeta:meta])* pub struct $stratname:ident [$($sgen:tt)*][$($swhere:tt)*] 
 	($innerstrat:ty) -> $stratvtty:ty; $(#[$vmeta:meta])* pub struct $vtname:ident 
 	[$($vgen:tt)*][$($vwhere:tt)*] ($innervt:ty) -> $actualty:ty; ) => {}
     
-    {  } => { Nil } ; 
     { $ head : expr } => { Cons ( $ head , Nil ) } ; 
     { $ head : expr , $ ( $ tail : expr ) , * } => { Cons ( $ head , hlist ! ( $ ( $ tail ) , * ) ) } ;
     { $ head : ty } => { Cons < $ head , Nil > } ;

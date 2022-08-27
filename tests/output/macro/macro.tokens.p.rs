@@ -1319,6 +1319,50 @@ macro_rules!•x•{↲    <MacroRulesDeclaration>                              
                     $b                   McIdentifier                                                                                     */
     //~^ ERROR `$a:expr` is followed by `$b:tt`, which is not allowed for `expr` fragments
     //~^•ERROR•`$a:expr`•is•followed•by•`$b:tt`,•which•is•not•allowed•for•`expr`•fragments    Comment
+    ($b : block, $e : expr, $i : ident, $it : item, $l : lifetime, $lit :                                                                 /*
+    ($b•:•block,•$e•:•expr,•$i•:•ident,•$it•:•item,•$l•:•lifetime,•$lit•:↲    <MacroRuleDeclaration>
+     $b•:•block                                                               MacroParameterDeclaration
+     $b                                                                       McIdentifier
+               ,                                                              PunctuationToken
+                 $e•:•expr                                                    MacroParameterDeclaration
+                 $e                                                           McIdentifier
+                          ,                                                   PunctuationToken
+                            $i•:•ident                                        MacroParameterDeclaration
+                            $i                                                McIdentifier
+                                      ,                                       PunctuationToken
+                                        $it•:•item                            MacroParameterDeclaration
+                                        $it                                   McIdentifier
+                                                  ,                           PunctuationToken
+                                                    $l•:•lifetime             MacroParameterDeclaration
+                                                    $l                        McIdentifier
+                                                                 ,            PunctuationToken
+                                                                   $lit•:↲    <MacroParameterDeclaration>
+                                                                   $lit       McIdentifier                                                */
+     literal, $m : meta, $p : pat, $pth : path, $s : stmt, $tt : tt, $ty : ty,                                                            /*
+•••••literal                                                                      </MacroParameterDeclaration>
+            ,                                                                     PunctuationToken
+              $m•:•meta                                                           MacroParameterDeclaration
+              $m                                                                  McIdentifier
+                       ,                                                          PunctuationToken
+                         $p•:•pat                                                 MacroParameterDeclaration
+                         $p                                                       McIdentifier
+                                 ,                                                PunctuationToken
+                                   $pth•:•path                                    MacroParameterDeclaration
+                                   $pth                                           McIdentifier
+                                              ,                                   PunctuationToken
+                                                $s•:•stmt                         MacroParameterDeclaration
+                                                $s                                McIdentifier
+                                                         ,                        PunctuationToken
+                                                           $tt•:•tt               MacroParameterDeclaration
+                                                           $tt                    McIdentifier
+                                                                   ,              PunctuationToken
+                                                                     $ty•:•ty     MacroParameterDeclaration
+                                                                     $ty          McIdentifier
+                                                                             ,    PunctuationToken                                        */
+     $vis : vis) => { } ;                                                                                                                 /*
+•••••$vis•:•vis)•=>•{•}      </MacroRuleDeclaration>
+     $vis•:•vis              MacroParameterDeclaration
+     $vis                    McIdentifier                                                                                                 */
 }                                                                                                                                         /*
 }    </MacroRulesDeclaration>                                                                                                             */
 
@@ -1814,8 +1858,8 @@ let•ret•=•structure.gen_impl(quote!•{↲    <LetVariableDeclaration>
 }      </MacroInvocation>                                                                                                                 */
 
 // Discarded Nodes: 0
-// Parsed Nodes: 2190
+// Parsed Nodes: 2242
 // state_rollbacks: 2
-// Total '.charCodeAt()' calls: 12299 (13% re-reads)
-// Unnecessary 'skip_whitespace()' calls: 712
+// Total '.charCodeAt()' calls: 12504 (13% re-reads)
+// Unnecessary 'skip_whitespace()' calls: 738
 // source: "../../samples/macro/macro.tokens.rs"

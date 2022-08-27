@@ -1568,50 +1568,6 @@ macro_rules!•c•{↲    <MacroRulesDeclaration>                              
                              @                             PunctuationToken
                               $snapshot:literal            MacroParameterDeclaration
                               $snapshot                    McIdentifier                                                                   */
-    ($b : block, $e : expr, $i : ident, $it : item, $l : lifetime, $lit :                                                                 /*
-    ($b•:•block,•$e•:•expr,•$i•:•ident,•$it•:•item,•$l•:•lifetime,•$lit•:↲    <MacroRuleDeclaration>
-     $b•:•block                                                               MacroParameterDeclaration
-     $b                                                                       McIdentifier
-               ,                                                              PunctuationToken
-                 $e•:•expr                                                    MacroParameterDeclaration
-                 $e                                                           McIdentifier
-                          ,                                                   PunctuationToken
-                            $i•:•ident                                        MacroParameterDeclaration
-                            $i                                                McIdentifier
-                                      ,                                       PunctuationToken
-                                        $it•:•item                            MacroParameterDeclaration
-                                        $it                                   McIdentifier
-                                                  ,                           PunctuationToken
-                                                    $l•:•lifetime             MacroParameterDeclaration
-                                                    $l                        McIdentifier
-                                                                 ,            PunctuationToken
-                                                                   $lit•:↲    <MacroParameterDeclaration>
-                                                                   $lit       McIdentifier                                                */
-     literal, $m : meta, $p : pat, $pth : path, $s : stmt, $tt : tt, $ty : ty,                                                            /*
-•••••literal                                                                      </MacroParameterDeclaration>
-            ,                                                                     PunctuationToken
-              $m•:•meta                                                           MacroParameterDeclaration
-              $m                                                                  McIdentifier
-                       ,                                                          PunctuationToken
-                         $p•:•pat                                                 MacroParameterDeclaration
-                         $p                                                       McIdentifier
-                                 ,                                                PunctuationToken
-                                   $pth•:•path                                    MacroParameterDeclaration
-                                   $pth                                           McIdentifier
-                                              ,                                   PunctuationToken
-                                                $s•:•stmt                         MacroParameterDeclaration
-                                                $s                                McIdentifier
-                                                         ,                        PunctuationToken
-                                                           $tt•:•tt               MacroParameterDeclaration
-                                                           $tt                    McIdentifier
-                                                                   ,              PunctuationToken
-                                                                     $ty•:•ty     MacroParameterDeclaration
-                                                                     $ty          McIdentifier
-                                                                             ,    PunctuationToken                                        */
-     $vis : vis) => { } ;                                                                                                                 /*
-•••••$vis•:•vis)•=>•{•}      </MacroRuleDeclaration>
-     $vis•:•vis              MacroParameterDeclaration
-     $vis                    McIdentifier                                                                                                 */
 	($(#[$smeta:meta])* pub struct $stratname:ident [$($sgen:tt)*][$($swhere:tt)*]                                                        /*
     ($(#[$smeta:meta])*•pub•struct•$stratname:ident•[$($sgen:tt)*][$($swhere:tt)*]•↲    <MacroRuleDeclaration>
      $(#[$smeta:meta])*                                                                 MacroGroup
@@ -1662,8 +1618,6 @@ macro_rules!•c•{↲    <MacroRulesDeclaration>                              
                                                     $actualty                McIdentifier
                                                                 ;            PunctuationToken                                             */
 
-    {  } => { Nil } ;                                                                                                                     /*
-    {••}•=>•{•Nil•}      MacroRuleDeclaration                                                                                             */
     { $ head : expr } => { Cons ( $ head , Nil ) } ;                                                                                      /*
     {•$•head•:•expr•}•=>•{•Cons•(•$•head•,•Nil•)•}      MacroRuleDeclaration
       $                                                 PunctuationToken
@@ -1833,8 +1787,8 @@ macro_rules!•c•{↲    <MacroRulesDeclaration>                              
 }    </MacroRulesDeclaration>                                                                                                             */
 
 // Discarded Nodes: 0
-// Parsed Nodes: 2004
+// Parsed Nodes: 1950
 // state_rollbacks: 1
-// Total '.charCodeAt()' calls: 9790 (12% re-reads)
-// Unnecessary 'skip_whitespace()' calls: 750
+// Total '.charCodeAt()' calls: 9560 (12% re-reads)
+// Unnecessary 'skip_whitespace()' calls: 724
 // source: "../../samples/macro/macro.match.rs"

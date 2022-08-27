@@ -196,6 +196,9 @@ macro_rules! x {
     ($($ty:ty)-+) => (); //~ ERROR `$ty:ty` is followed by `-`, which is not allowed for `ty`
     ( $($a:expr)* $($b:tt)* ) => { };
     //~^ ERROR `$a:expr` is followed by `$b:tt`, which is not allowed for `expr` fragments
+    ($b : block, $e : expr, $i : ident, $it : item, $l : lifetime, $lit :
+     literal, $m : meta, $p : pat, $pth : path, $s : stmt, $tt : tt, $ty : ty,
+     $vis : vis) => { } ;
 }
 
 #![rustc_dummy("hi", 1, 2, 1.012, pi = 3.14, bye, name("John"))]
