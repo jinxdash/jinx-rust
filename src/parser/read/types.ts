@@ -34,8 +34,8 @@ import {
 	TY_ctx_allowMultipleBounds,
 	TY_withContext,
 	will_match_charLiteral_not_lt,
-	with_outerAttributes_fromParentContext,
-	__inherit_startPos,
+	withStart,
+	with_outerAttributes_fromParentContext
 } from "../state";
 import {
 	escapeParens,
@@ -45,7 +45,7 @@ import {
 	FileLoc_FromChild,
 	FileLoc_FromChildElseReadAhead,
 	FileLoc_ReadAhead,
-	withEscapedParens,
+	withEscapedParens
 } from "../state/constructor";
 import { Keyword } from "../state/scanner";
 import { BlockExpression, ExpressionTypeSelector, MinusExpression, read_expression_between } from "./expressions";
@@ -310,7 +310,7 @@ function read_TypeArgument(): Nodes.TypeCallArgument {
 
 //#-------------------------------------------------------+        Forms        +-----------------------------------------------------------.
 
-class TypeFnPointer extends FileLoc_ReadAhead(Nodes.TypeFnPointer) {
+class TypeFnPointer extends FileLoc_FromChildElseReadAhead(Nodes.TypeFnPointer) {
 	read(ltParameters: this["ltParameters"]) {
 		// for<...ltParameters>? fn(••••••••••••••
 		//                       ^- You are here
@@ -380,11 +380,11 @@ class TypeDynBounds extends FileLoc_ReadAhead(Nodes.TypeDynBounds) {
 }
 
 function asTypeDynBounds(typeBound: Nodes.TypeDynBounds["typeBounds"][number]) {
-	return __inherit_startPos(TypeDynBounds.read(false, typeBound), typeBound);
+	return withStart(typeBound, TypeDynBounds.read(false, typeBound));
 }
 
 function asTypeTraitBound(typeExpression: Nodes.TypeNamespaceTargetNoSelector) {
-	return __inherit_startPos(TypeTraitBound.read(false, false, undefined, typeExpression), typeExpression);
+	return withStart(typeExpression, TypeTraitBound.read(false, false, undefined, typeExpression));
 }
 
 function read_standalone_bounds(first: Nodes.TypeBound) {
@@ -654,17 +654,19 @@ function read_type_lhs(): Nodes.TypeNode {
 					return read_with_move_modifier(() => read_type_lhs() as Extract<Nodes.TypeNode, Nodes.MoveModifier>);
 
 				case Keyword.dyn: // dyn ...
-					return read_ahead(() => {
-						safe_skip_keyword(Keyword.dyn);
-						return TY_withContext(() => TypeDynBounds.read(true, read_TypeBound()), true);
-					});
+					return read_ahead(
+						() => (
+							safe_skip_keyword(Keyword.dyn), //
+							TY_withContext(() => TypeDynBounds.read(true, read_TypeBound()), true)
+						)
+					);
 				case Keyword.impl: // impl Foo
 					return TY_withContext(() => TypeImplBounds.read(), true);
 
 				case Keyword.Underscore:
 					return TypeInferred.read(); // _
 				case Keyword.fn:
-					return read_ahead(() => TypeFnPointer.read(undefined));
+					return TypeFnPointer.read(undefined);
 				// #valid_identifier_keywords
 				case Keyword.auto:
 				case Keyword.self:
@@ -683,8 +685,12 @@ function read_type_lhs(): Nodes.TypeNode {
 }
 
 function read_forltParameters() {
-	safe_skip_keyword(Keyword.for);
-	return read_sequence(DelimKind["<>"], () => with_outerAttributes_fromParentContext(() => GenericLtParameterDeclaration.read()));
+	return read_ahead(
+		() => (
+			safe_skip_keyword(Keyword.for),
+			read_sequence(DelimKind["<>"], () => with_outerAttributes_fromParentContext(() => GenericLtParameterDeclaration.read()))
+		)
+	);
 }
 
 function maybe_read_forLtParameters() {

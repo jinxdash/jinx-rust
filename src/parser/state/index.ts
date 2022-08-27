@@ -35,9 +35,9 @@ import {
 	Loc,
 	LocArray,
 	Located,
-	MatchExpression,
 	Node,
 	NodeType,
+	NodeWithBody,
 	NodeWithBodyNoBody,
 	NodeWithBodyOrCases,
 	PRCD,
@@ -364,7 +364,7 @@ export const will_match_lt = (): boolean => match(CharCode["'"]) && !will_match_
 //#-----------------------------------------------------+        Sequences        +---------------------------------------------------------.
 
 // prettier-ignore
-export const FOR_EACH_UNTIL = (__RUN__: () => void, CHAR_SEP: CharCode, CHAR_END: CharCode) => {
+export const FOR_EACH_UNTIL = (CHAR_SEP: CharCode, __RUN__: () => void, CHAR_END: CharCode) => {
 	loop: while (match(CHAR_SEP)) {
 		safe_skip(CHAR_SEP);
 		switch (currChar()) { case CHAR_END: case CharCode_EOF: break loop; }
@@ -399,8 +399,8 @@ export function readLocatedArrayNoDelim<T extends Node>(fn: (arr: LocArray<T, "N
 }
 
 // prettier-ignore
-export function readLocatedArrayDelim<T extends Node, K extends DelimKind>(tk: K, fn: (arr: LocArray<T, DelimNameMap[K]>) => void): LocArray<T, DelimNameMap[K]> {
-	const ARRAY = createLocArray<T, K>(tk, new Loc(src, pos, 0));
+export function readLocatedArrayDelim<T extends Node, K extends DelimKind>(dk: K, fn: (arr: LocArray<T, DelimNameMap[K]>) => void): LocArray<T, DelimNameMap[K]> {
+	const ARRAY = createLocArray<T, K>(dk, new Loc(src, pos, 0));
 	fn(ARRAY);
 	__DEV__: assert(ARRAY.length === 0 ? pos !== start(ARRAY) : start(ARRAY) <= start(ARRAY[0]));
 	setRangeEnd(ARRAY, getPreWhitespaceSkipPosition());
@@ -408,14 +408,14 @@ export function readLocatedArrayDelim<T extends Node, K extends DelimKind>(tk: K
 }
 
 // prettier-ignore
-export const read_sequence = <T extends Node, K extends SomeDelimKind>(TK: K, EACH: (SEQUENCE: unknown[]) => T): LocArray<T, DelimNameMap[K]> => {
+export const read_sequence = <T extends Node, K extends SomeDelimKind>(DK: K, EACH: (SEQUENCE: unknown[]) => T): LocArray<T, DelimNameMap[K]> => {
 	__DEV__: DEV_lastSequence.set(null);
 
-	const SEQUENCE = createLocArray<T, K>(TK, new Loc(src, pos, 0));
+	const SEQUENCE = createLocArray<T, K>(DK, new Loc(src, pos, 0));
 
-	safe_skip(getDelimStartCharCode(TK));
+	safe_skip(getDelimStartCharCode(DK));
 	
-	const END = getDelimEndCharCode(TK);
+	const END = getDelimEndCharCode(DK);
 
 	LOOP: {
 		while (not_match(END)) {
@@ -436,18 +436,37 @@ export const read_sequence = <T extends Node, K extends SomeDelimKind>(TK: K, EA
 	return SEQUENCE;
 };
 
+// function _withKeyword<T extends (DeclarationNode["whereBounds"] & {}) | (ForLtParametersBody["ltParameters"] & {})>(
+// 	kwStartPos: number,
+// 	target: T
+// ): T {
+// 	__DEV__: assert(
+// 		// where ...
+// 		(target.dk === DelimKind["None"] && target.every(is_WhereBoundDeclaration)) ||
+// 			// for<...>
+// 			(target.dk === DelimKind["<>"] && target.every(is_GenericLtParameterDeclaration))
+// 	);
+// 	internal_saveOwnStart(target);
+// 	setRangeStart(target, kwStartPos);
+// 	return target;
+// }
+
+// export const read_kw_sequence = <T extends Node, K extends SomeDelimKind>(
+// 	KW: Keyword.where | Keyword.for,
+// 	DK: K,
+// 	EACH: (SEQUENCE: unknown[]) => T
+// ): LocArray<T, DelimNameMap[K]> => _withKeyword(pos, (safe_skip_keyword(KW), read_sequence(DK, EACH)) as any);
+
 // prettier-ignore
-export const read_group = <T extends AttributeTarget & Node, K extends SomeDelimKind>(SELF: Exclude<NodeWithBodyOrCases, Program> | Snippet, TK: K, EACH: () => T) => {
-	const SEQUENCE = createLocArray<T, K>(TK, new Loc(src, pos, 0));
+export const read_group = <T extends AttributeTarget & Node, K extends SomeDelimKind>(SELF: Exclude<NodeWithBodyOrCases, Program> | Snippet, DK: K, EACH: () => T) => {
+	const SEQUENCE = createLocArray<T, K>(DK, new Loc(src, pos, 0));
 	switch (SELF.nodeType) {
 		case NodeType.Snippet: SELF.ast = SEQUENCE as any; break;
 		case NodeType.MatchExpression: SELF.cases = SEQUENCE as any; break;
-		default: 
-			Narrow<Exclude<NodeWithBodyOrCases, Program | MatchExpression>>(SELF);
-			SELF.body = SEQUENCE as any; break;
+		default: Narrow<Exclude<NodeWithBody, Program>>(SELF); SELF.body = SEQUENCE as any; break;
 	}
-	const END = getDelimEndCharCode(TK);
-	read(getDelimStartCharCode(TK));
+	const END = getDelimEndCharCode(DK);
+	read(getDelimStartCharCode(DK));
 	LOOP: while (true) {
 		maybe_read_inner_attributes(SELF);
 		switch (currChar()) { case END: break LOOP; case CharCode_EOF: exit.expected(END); }
@@ -573,23 +592,21 @@ export const read_cached_keyword = () => safe_skip_keyword(kw);
 
 //#region ==========================================[        Position patching        ]=====================================================``--.
 
-export const read_ahead = <T extends Node>(fn: () => T): T => __patch_startPos(pos, fn());
+const __patch_startPos = <T extends Located>(startPos: number, target: T): T => (setRangeStart(target, startPos), target);
+const __patch_endPos = <T extends Located>(endPos: number, target: T): T => (setRangeEnd(target, endPos), target);
+
+export const read_ahead = <T extends Located>(fn: () => T): T => __patch_startPos(pos, fn());
 export const CCPATH_read = <T extends { new (...args: any[]): any; read(namespace: undefined): any }>(PATH_NODE: T): InstanceType<T> =>
 	__patch_startPos(pos, (safe_skip_1_read_2(CharCode[":"], CharCode[":"]), PATH_NODE.read(undefined)));
 
-export const __patch_startPos = <T extends Located>(startPos: number, node: T): T => (setRangeStart(node, startPos), node);
-export const __patch_endPos = <T extends Located>(endPos: number, node: T): T => (setRangeEnd(node, endPos), node);
-
-export const __inherit_startPos = <T extends Located>(to: T, from: Located): T => __patch_startPos(start(from), to);
-export const __inherit_endPos = <T extends Located>(to: T, from: Located): T => __patch_endPos(end(from), to);
-export const __inherit_range = <T extends Located>(to: T, from: Located): T => {
-	__patch_startPos(start(from), to);
-	__patch_endPos(end(from), to);
-	return to;
-};
+export const withStart = <T extends Located>(head: Located, target: T): T => __patch_startPos(start(head), target);
+export const withEnd = <T extends Located>(tail: Located, target: T): T => __patch_endPos(end(tail), target);
+export const withRange = <T extends Located>(target: T, head: Located, tail: Located): T => (
+	setRangeStart(target, start(head)), __patch_endPos(end(tail), target)
+);
 
 export const __set_endPos_eat = (target: Located, char: CharCode) => {
-	setRangeEnd(target, pos + 1);
+	setRangeEnd(target, 1 + pos);
 	safe_skip(char);
 };
 

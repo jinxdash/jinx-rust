@@ -791,7 +791,9 @@ export class Loc {
 	declare readonly src: SourceFile;
 	protected declare readonly 0: number;
 	protected declare readonly 1: number;
-	protected declare readonly ownStart?: number;
+	/** loc[0] includes #[attr] above nodes and keywords like "where" and "for" before LocArrays. loc[2] stores the actual start pos. */
+	protected declare readonly 2?: number;
+
 	constructor(src: SourceFile, start: number, end: number) {
 		this.src = src;
 		this[0] = start;
@@ -803,16 +805,16 @@ export class Loc {
 	isBefore(target: Located) { return this[1] <= start(target); }
 	isAfter(target: Located) { return this[0] >= end(target); }
 	contains(target: Located) { return this[0] <= start(target) && this[1] >= end(target); }
-	ownContains(target: Located) { return (this.ownStart ?? this[0]) <= start(target) && this[1] >= end(target); }
+	ownContains(target: Located) { return (2 in this ? this[2]! : this[0]) <= start(target) && this[1] >= end(target); }
 	isBetween(left: Located, right: Located) { return this[0] >= end(left) && this[1] <= start(right); }
 
 	url() { return this.src.url(this[0]); }
 	
 	getText() { return this.src.code.slice(this[0], this[1]); }
-	getOwnText() { return this.src.code.slice(this.ownStart ?? this[0], this[1]); }
+	getOwnText() { return this.src.code.slice(2 in this ? this[2]! : this[0], this[1]); }
 	sliceText(startIndex?: number, endIndex?: number) { return this.src.code.slice(this[0], this[1]).slice(startIndex, endIndex); }
 
-	clone() { return new Loc(this.src, this.ownStart ?? this[0], this[1]); }
+	clone() { return new Loc(this.src, 2 in this ? this[2]! : this[0], this[1]); }
 	cloneFrom(startPos: number) { return new Loc(this.src, startPos, this[1]); }
 
 	[Symbol.for("nodejs.util.inspect.custom")]() { return this.url(); }

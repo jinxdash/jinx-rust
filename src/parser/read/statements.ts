@@ -163,9 +163,9 @@ function read_import(): Nodes.ImportNode {
 	let lhs: Nodes.Identifier | Nodes.ItemPath;
 	switch (currChar()) {
 		case CharCode["{"]:
-			return read_ahead(() => DestructuredImport.read(undefined));
+			return DestructuredImport.read(undefined);
 		case CharCode["*"]:
-			return read_ahead(() => AmbientImport.read(undefined));
+			return AmbientImport.read(undefined);
 		case CharCode[":"]: {
 			const res = read_ahead(() => {
 				safe_skip_1_read_2(CharCode[":"], CharCode[":"]);
@@ -334,10 +334,8 @@ class FunctionDeclaration extends FileLoc(Nodes.FunctionDeclaration) {
 					)
 				);
 				FOR_EACH_UNTIL(
-					() => {
-						parameters.push(with_outerAttributes_fromParentContext(() => read_function_parameter()));
-					},
 					CharCode[","],
+					() => parameters.push(with_outerAttributes_fromParentContext(() => read_function_parameter())),
 					CharCode[")"]
 				);
 			}

@@ -7,9 +7,9 @@ export function mockNode<NT extends NodeType>(nodeType: NT, loc: Loc, obj: Omit<
 	return node;
 }
 
-export function createLocArray<T extends Node, K extends DelimKind>(tk: K, loc: Loc, array: T[] = []): LocArray<T, DelimNameMap[K]> {
-	Narrow<LocArray<T, any>>(array);
+export function createLocArray<T extends Node, D extends DelimKind>(dk: D, loc: Loc, array: T[] = []): LocArray<T, DelimNameMap[D]> {
+	__DEV__: Narrow<LocArray<T, any>>(array);
 	array.loc = loc;
-	array.dk = tk;
+	array.dk = dk;
 	return array;
 }

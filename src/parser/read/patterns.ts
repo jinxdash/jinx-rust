@@ -22,10 +22,9 @@ import {
 	safe_skip_1_read_2,
 	safe_skip_keyword,
 	sequence_hasTrailingComma,
+	withRange,
 	with_outerAttributes_fromParentContext,
 	with_outerAttributes_fromParentContext_if_test,
-	__inherit_endPos,
-	__inherit_startPos,
 } from "../state";
 import {
 	FileLoc,
@@ -175,8 +174,7 @@ class TuplePattern extends FileLoc_DEFINES_OWN_RANGE(Nodes.TuplePattern) {
 	read(struct: this["struct"], items: this["items"]) {
 		this.struct = struct;
 		this.items = items;
-		__inherit_startPos(this, struct ?? items);
-		__inherit_endPos(this, items);
+		withRange(this, struct ?? items, items);
 	}
 }
 
@@ -345,7 +343,7 @@ function read_pattern_lhs() {
 			})
 
 		case CharCode["|"]:
-			return read_ahead(() => UnionPattern.read(undefined));
+			return UnionPattern.read(undefined);
 
 		case CharCode["-"]: // -5
 			return MinusPattern.read(() => Literal.read());

@@ -1,5 +1,5 @@
 import { hasOwnStart, ownStart, start } from ".";
-import type { AttributeOrDocComment, AttributeTarget, Located, Node, NodeType } from "../../parser/nodes";
+import { AttributeOrDocComment, AttributeTarget, Located, Node, NodeType } from "../../parser/nodes";
 import { assert, binaryInsertEach, binaryInsertIn, exit, is_non_empty_array, Narrow } from "../common";
 import { hasAttributes } from "./helpers";
 import { isOuter } from "./nodetype";
@@ -18,7 +18,7 @@ import { isOuter } from "./nodetype";
 // }
 
 function assert_realPos(target: Located, pos: number) {
-	if (pos < 0 || (target.loc.src && pos > target.loc.src.code.length)) {
+	if (typeof pos !== "number" || pos < 0 || (target.loc.src && pos > target.loc.src.code.length)) {
 		exit("Attempted to set range to non-existing position", { target, pos, code_length: target.loc.src.code.length });
 	}
 }
@@ -40,6 +40,11 @@ export function unsafe_setRangeEnd(target: Located, endPos: number) {
 	target.loc[1] = endPos;
 }
 
+function internal_saveOwnStart(target: Located) {
+	__DEV__: assert(!hasOwnStart(target)), assert_realPos(target, start(target)); // @ts-expect-error readonly
+	target.loc[2] = start(target);
+}
+
 // prettier-ignore
 export function setRangeStart(target: Located, startPos: number) {
 	// __DEV__: assert(range_start >= 0 && (start(target) === 0 || range_start < start(target)), d`Attempted to setRangeStart(${target}, ${start(target)} -> ${range_start})`);
@@ -57,18 +62,12 @@ export function setRange(target: Located, startPos: number, endPos: number) {
 	setRangeEnd(target, endPos);
 }
 
-function saveOwnRangeStart(target: Extract<Node, AttributeTarget>) {
-	__DEV__: assert(!hasOwnStart(target) && start(target) > 0);
-	// @ts-expect-error protected
-	target.loc.ownStart = start(target);
-}
-
 export function deleteAttributes(target: Node) {
 	__DEV__: assert("attributes" in target);
 	if (hasOwnStart(target)) {
 		unsafe_setRangeStart(target, ownStart(target));
-		// @ts-expect-error protected
-		delete target.loc.ownStart;
+		// @ts-expect-error readonly
+		delete target.loc[2];
 	}
 	delete target.attributes;
 }
@@ -76,18 +75,12 @@ export function deleteAttributes(target: Node) {
 export function assignAttributes(target: Node, attrs: AttributeOrDocComment[]) {
 	__DEV__: Narrow<AttributeTarget>(target), assert(is_non_empty_array(attrs));
 
-	if (hasAttributes(target)) {
-		insertNodes(target.attributes, attrs);
-		if (isOuter(attrs[0]) && attrs[0] === target.attributes[0]) {
-			if (!hasOwnStart(target)) saveOwnRangeStart(target);
-			setRangeStart(target, start(attrs[0]));
-		}
-	} else {
-		target.attributes = [...attrs];
-		if (isOuter(attrs[0])) {
-			saveOwnRangeStart(target);
-			setRangeStart(target, start(attrs[0]));
-		}
+	if (hasAttributes(target)) insertNodes(target.attributes, attrs);
+	else target.attributes = [...attrs];
+
+	if (isOuter(attrs[0])) {
+		if (!hasOwnStart(target)) internal_saveOwnStart(target);
+		setRangeStart(target, start(attrs[0]));
 	}
 
 	// __DEV__: assert_sorted(target, target.attributes!);

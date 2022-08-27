@@ -44,10 +44,10 @@ import {
 	sequence_hasTrailingComma,
 	will_match_charLiteral_not_lt,
 	will_match_lt,
+	withEnd,
+	withStart,
 	with_outerAttributes_fromParentContext,
 	with_outerAttributes_fromParentContext_if_test,
-	__inherit_endPos,
-	__inherit_startPos,
 } from "../state";
 import {
 	FileLoc,
@@ -238,19 +238,18 @@ function read_property_or_method(expression: CallExpression["callee"] | MemberEx
 					//             ^ You are here
 					if (maybe_skip_1_read_2(CharCode[":"]) && match(CharCode["<"])) {
 						const typeArguments = read_TypeArguments();
-						if (not_match(CharCode["("])) {
-							// lhs.property::<...>
-							// syntax error
+						if (match(CharCode["("])) {
+							// lhs.property::<...typeArguments>(
+							return CallExpression.read(expression, property, typeArguments);
+						} else {
+							// lhs.property::<...typeArguments> // syntax error
 							return ExpressionTypeCast.read(
-								__inherit_endPos(MemberExpression.read(expression, false, property), property) as any,
+								withEnd(property, MemberExpression.read(expression, false, property)) as any,
 								typeArguments
 							);
 						}
-						// lhs.property::<...>(
-						return CallExpression.read(expression, property, typeArguments);
 					} else {
-						// lhs.property::foo
-						// syntax error
+						// lhs.property::foo // syntax error
 						EDGECASE_STEPBACK_TO(property);
 						return MemberExpression.read(expression, false, property);
 					}
@@ -706,7 +705,7 @@ function read_expression_lhs(): ExpressionNode {
 					if ((is_sized = maybe_read(CharCode[";"]))) {
 						(items[1] = read_item()), read(CharCode["]"]);
 					} else {
-						FOR_EACH_UNTIL(() => items.push(read_item()), CharCode[","], CharCode["]"]);
+						FOR_EACH_UNTIL(CharCode[","], () => items.push(read_item()), CharCode["]"]);
 					}
 				}
 				function read_item() {
@@ -868,9 +867,7 @@ function read_labelled_block(label: Nodes.LbIdentifier) {
 	read(CharCode[":"]);
 	const lhs = read_expression_lhs();
 	assert.at(lhs, is_ExpressionWithBodyOrCases(lhs), `Expected ExpressionWithBodyOrCases, found ${lhs.type}`);
-	lhs.label = label;
-	__inherit_startPos(lhs, label);
-	return maybe_combine_expression_block(lhs);
+	return maybe_combine_expression_block(withStart((lhs.label = label), lhs));
 }
 
 export function read_stmt_expression() {

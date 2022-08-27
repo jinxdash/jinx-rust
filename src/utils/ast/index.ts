@@ -27,22 +27,21 @@ export function is_LocArray(data: any): data is LocArray<Node> {
 	return is_Located(data) && "length" in data;
 }
 
-export function start(node: Located) {
+export function hasOwnStart(node: Located): boolean {
+	__DEV__: assert_located(node);
+	return 2 in node.loc;
+}
+
+export function start(node: Located): number {
 	__DEV__: assert_located(node);
 	return node.loc[0];
 }
 
-export function end(node: Located) {
+export function end(node: Located): number {
 	__DEV__: assert_located(node);
 	return node.loc[1];
 }
 
-export function ownStart(node: Located) {
-	__DEV__: assert_located(node); // @ts-expect-error protected
-	return node.loc.ownStart ?? start(node);
-}
-
-export function hasOwnStart(node: Located) {
-	__DEV__: assert_located(node);
-	return "ownStart" in node.loc;
+export function ownStart(node: Located): number {
+	return hasOwnStart(node) ? node.loc[2]! : start(node);
 }
