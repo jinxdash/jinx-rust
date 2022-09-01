@@ -176,7 +176,7 @@ function isArrayLike(value: any): value is ArrayLike<unknown> {
 }
 
 function oisArrayLike(value: {}): value is ArrayLike<unknown> {
-	return "length" in value && (0 === (value as any).length || "0" in value);
+	return "length" in value && (0 === (value as any).length || 0 in value);
 }
 
 export function binarySearch(array: ArrayLike<number>, target: number) {
@@ -505,14 +505,29 @@ export function trycatch(tryFn: () => any, catchFn: (e: Error) => any = (e) => e
 }
 
 export function count_occurences(str: string, re: RegExp) {
+	__DEV__: assert(re.global);
 	return str.match(re)?.length ?? 0;
 }
 
-export function get_extra_indent(str: string) {
-	return count_occurences(str, /\t/g) * 3;
+export function calcLineWidth(line: string, tabSize = 4) {
+	for (var l = 0, i = 0; i < line.length; i++) {
+		switch (line.charCodeAt(i)) {
+			case CharCode["\t"]:
+				l += tabSize - (l % tabSize);
+				break;
+			case CharCode["\n"]:
+			case CharCode["\r"]:
+				exit("calcLineWidth expects a line, found breakline", line);
+			default:
+				l++;
+				break;
+		}
+	}
+	return l;
 }
-export function get_tab_aware_printWidth(str: string) {
-	return str.length + get_extra_indent(str);
+
+export function getTabAddedWidth(line: string, tabSize?: number) {
+	return calcLineWidth(line, tabSize) - line.length;
 }
 
 export function clamp(min: number, max: number, value: number) {

@@ -94,10 +94,15 @@ const DevCC = devonly(() => {
 	let top_pos_queried = -1;
 	let back_pos_queries = 0;
 	return {
+		check() {
+			assert(cc_reads >= GET_LENGTH(), "Somehow read less characters than code.length");
+		},
 		debug: () => (pos === top_pos_queried ? {} : { pos, top_pos_queried }),
 		stats: () => ({
 			"Total '.charCodeAt()' calls":
-				cc_reads > GET_LENGTH()
+				cc_reads === GET_LENGTH()
+					? `${cc_reads} (0% re-reads)`
+					: cc_reads >= GET_LENGTH()
 					? `${cc_reads} (${Math.round(100 * ((cc_reads - GET_LENGTH()) / GET_LENGTH()))}% re-reads)`
 					: "unknown",
 		}),

@@ -791,7 +791,6 @@ export class Loc {
 	declare readonly src: SourceFile;
 	protected declare readonly 0: number;
 	protected declare readonly 1: number;
-	/** loc[0] includes #[attr] above nodes and keywords like "where" and "for" before LocArrays. loc[2] stores the actual start pos. */
 	protected declare readonly 2?: number;
 
 	constructor(src: SourceFile, start: number, end: number) {

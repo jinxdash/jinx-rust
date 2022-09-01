@@ -6,6 +6,8 @@ export * from "./iterator";
 export * from "./nodetype";
 export * from "./transform";
 
+// meta types
+
 function assert_located(obj: Located) {
 	__DEV__: if (!is_Located(obj)) exit("Expected Object.loc", obj);
 }
@@ -27,10 +29,7 @@ export function is_LocArray(data: any): data is LocArray<Node> {
 	return is_Located(data) && "length" in data;
 }
 
-export function hasOwnStart(node: Located): boolean {
-	__DEV__: assert_located(node);
-	return 2 in node.loc;
-}
+// loc helpers
 
 export function start(node: Located): number {
 	__DEV__: assert_located(node);
@@ -42,6 +41,22 @@ export function end(node: Located): number {
 	return node.loc[1];
 }
 
+export function hasOwnStart(node: Located): boolean {
+	__DEV__: assert_located(node);
+	return 2 in node.loc;
+}
+
 export function ownStart(node: Located): number {
-	return hasOwnStart(node) ? node.loc[2]! : start(node);
+	__DEV__: assert_located(node);
+	return 2 in node.loc ? node.loc[2]! : start(node);
+}
+
+export function isLocEqual(a: Loc, b: Loc): boolean {
+	__DEV__: (is_Loc(a) && is_Loc(b)) || exit("Expected Loc", a, b);
+	return (
+		(2 in a ? 2 in b && a[2] === b[2] : !(2 in b)) &&
+		a[0] === b[0] && //
+		a[1] === b[1] &&
+		a.src === b.src
+	);
 }

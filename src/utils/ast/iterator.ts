@@ -3,15 +3,21 @@ import { FunctionDeclarationParameters, Node } from "../../parser/nodes";
 import { assert, exit, is_array, is_defined } from "../common";
 import { insertNode, insertNodes } from "./transform";
 
+// type _kof<T> = T extends never ? never : keyof T;
+// type NodeKey = _kof<PickProps<Node, { nodeType: number } | { nodeType: number }[]>>;
+
+type Index = number | "self";
+export type ChildNodeIndex = Index | undefined;
+
 interface AstItFn<R = void> {
-	(child: Node, key: string, index?: number | "self"): R;
+	(child: Node, key: string, index?: Index): R;
 }
 
 interface AstItEachFn<R = void> {
-	(child: Node, parent: Node, key: string, index?: number | "self"): R;
+	(child: Node, parent: Node, key: string, index?: Index): R;
 }
 
-type NodeValues<T> = T extends FunctionDeclarationParameters ? T[number] | T["self"] : T extends ReadonlyArray<any> ? T[number] : T;
+type NodeValues<T> = T extends FunctionDeclarationParameters ? T[Index] : T extends ReadonlyArray<any> ? T[number] : T;
 export type NodeChildTypes<T> = T extends never ? never : Extract<NodeValues<T[keyof T]>, { nodeType: any }>;
 
 export type PickProps<T, F> = T extends never
@@ -495,20 +501,20 @@ function iterate_nodes(node: Node, fn: AstItFn): void {
 }
 // </generated>
 
-/** Iterate childNodes */
-export function each_childNode(node: Node, callback: AstItEachFn) {
-	iterate_nodes(node, function f(child, key, index) {
-		callback(child, node, key, index);
+/** Iterate only direct childNodes */
+export function each_childNode(target: Node, callback: AstItEachFn) {
+	iterate_nodes(target, function f(child, ...key_ind) {
+		callback(child, target, ...key_ind);
 	});
 }
 
-/** Iterate nodes in tree, bottom up, excluding itself */
-export function each_node(ast: Node, callback: AstItEachFn) {
+/** Iterate all nodes in target. Bottom up, excluding itself. */
+export function each_node(target: Node, callback: AstItEachFn) {
 	let i = 0;
-	const ancestry: Node[] = [ast];
-	iterate_nodes(ast, function f(child, key, index) {
+	const ancestry: Node[] = [target];
+	iterate_nodes(target, function f(child, ...key_ind) {
 		iterate_nodes((ancestry[++i] = child), f);
-		callback(child, ancestry[--i], key, index);
+		callback(child, ancestry[--i], ...key_ind);
 	});
 }
 
@@ -548,8 +554,8 @@ function findNodeParentFromProgram(node: Node) {
 	})(node.loc.src);
 	return r;
 }
-/** Returns every node between origin down to and including target */
-function getAncestryNodesDownTo(origin: Node, target: Node) {
+/** Returns every node between parent down to and including target */
+function getAncestryNodesDownTo(parent: Node, target: Node) {
 	let j = 0;
 	const a: Node[] = [];
 
@@ -557,15 +563,15 @@ function getAncestryNodesDownTo(origin: Node, target: Node) {
 		(function r(parent) {
 			if (parent === target) throw 0;
 			iterate_nodes(parent, (n) => ((a[j++] = n), r(n), j--));
-		})(origin);
+		})(parent);
 	} catch (e) {
 		if (0 === e) return (a.length = j), a;
 		throw e;
 	}
-	exit("Could not find AstPath", { origin, target });
+	exit("Could not find AstPath", { parent, target });
 }
 
-/** returns the keys needed to access target from origin */
+/** returns the keys needed to access target from parent */
 export function getAstPath(parent: Node, target: Node): (string | number)[] {
 	let j = 0;
 	const p: (string | number)[] = [];
@@ -584,7 +590,7 @@ export function getAstPath(parent: Node, target: Node): (string | number)[] {
 	exit(`Could not find target ${target.type} in parent ${parent.type}`, { parent, target });
 }
 
-/** returns the keys needed to access a child from its parent */
+/** returns the key or the key + index needed to access a childNode from its direct parent */
 export function getOwnChildAstPath(parent: Node, child: Node): [string] | [string, number | "self"] {
 	let r;
 	try {
@@ -627,7 +633,7 @@ function some_childNode(node: Node, test: AstItFn<boolean>) {
 	return false;
 }
 
-export function reassignNodeProperty(value: any, parent: Node, key: string, index?: number | "self" | undefined) {
+export function reassignNodeProperty(value: any, parent: Node, key: string, index?: Index) {
 	if (typeof index === "undefined") parent[key] = value;
 	else parent[key][index] = value;
 }
