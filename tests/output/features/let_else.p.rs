@@ -1,13 +1,16 @@
 #![feature(let_else)]                                                                                                                     /*
-#![feature(let_else)]    Attribute
-          (let_else)     DelimGroup                                                                                                       */
+#![feature(let_else)]↲    <Program>
+#![feature(let_else)]     Attribute{inner}
+  [feature(let_else)]     Attribute.segments{dk: "[]"}
+          (let_else)      DelimGroup                                                                                                      */
 
 let a = 1 else { 2 };                                                                                                                     /*
+let•a•=•1•else•{•2•};    Program.ast{dk: "None"}
 let•a•=•1•else•{•2•};    LetVariableDeclaration
-        1                Literal
+        1                Literal{kind: Integer}
                {•2•}     BlockExpression
-                 2       ExpressionStatement, Literal                                                                                     */
-
+                 2       ExpressionStatement{!semi}, Literal{kind: Integer}
+let•a•=•1•else•{•2•};    </Program>                                                                                                       */
 // Discarded Nodes: 0
 // Parsed Nodes: 12
 // state_rollbacks: 0

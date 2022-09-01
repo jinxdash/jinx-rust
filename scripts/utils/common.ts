@@ -9,7 +9,7 @@ import {
 	edit_string,
 	exit,
 	flat,
-	get_tab_aware_printWidth,
+	getTabAddedWidth,
 	MaybeFlatten,
 	normPath,
 	print_string,
@@ -175,7 +175,7 @@ export function join_wrap({
 	if (content.length === 0) return PRETTIER_IGNORE + start.trimEnd() + end.trimStart();
 
 	const sepEol = sep.trimEnd();
-	const target_length = getPrintWidth() - get_tab_aware_printWidth(indent) - sepEol.length;
+	const target_length = getPrintWidth() - (indent.length + getTabAddedWidth(indent) + sepEol.length);
 
 	let res = "";
 	let line = "";
@@ -191,14 +191,15 @@ export function join_wrap({
 		line += `${indent}${content[0]}`;
 	}
 
-	each(content.slice(1), (item) => {
+	for (let item of content.slice(1)) {
+		item = item.trimEnd();
 		if (line.length + item.length > target_length) {
 			res += `${line}${sepEol}`;
 			line = `\n${indent}${item}`;
 		} else {
 			line += `${sep}${item}`;
 		}
-	});
+	}
 
 	return PRETTIER_IGNORE + res + line + end;
 }

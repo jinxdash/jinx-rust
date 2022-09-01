@@ -1,35 +1,48 @@
 #![feature(generators)]                                                                                                                   /*
-#![feature(generators)]    Attribute
-          (generators)     DelimGroup                                                                                                     */
+#![feature(generators)]↲    <Program>
+#![feature(generators)]     Attribute{inner}
+  [feature(generators)]     Attribute.segments{dk: "[]"}
+          (generators)      DelimGroup                                                                                                    */
 
 [                                                                                                                                         /*
-[↲    <ExpressionStatement>, <ArrayLiteral>                                                                                               */
+[↲    <Program.ast{dk: "None"}>
+[↲    <ExpressionStatement{!semi}>
+[↲    <ArrayLiteral>                                                                                                                      */
 	static move || { let a = A::<Box<dyn D>> { b: E::r(), }; yield (); },                                                                 /*
-    static•move•||•{•let•a•=•A::<Box<dyn•D>>•{•b:•E::r(),•};•yield•();•}    ClosureFunctionExpression
-                   {•let•a•=•A::<Box<dyn•D>>•{•b:•E::r(),•};•yield•();•}    BlockExpression
-                     let•a•=•A::<Box<dyn•D>>•{•b:•E::r(),•};                LetVariableDeclaration
-                             A::<Box<dyn•D>>•{•b:•E::r(),•}                 StructLiteral
-                             A::<Box<dyn•D>>                                ExpressionTypeCast
-                                 Box<dyn•D>                                 TypeCall
-                                     dyn•D                                  TypeDynBounds
-                                         D                                  TypeTraitBound
-                                               b:•E::r()                    StructLiteralProperty
-                                                  E::r()                    CallExpression
-                                                  E::r                      ExpressionPath
-                                                             yield•();      ExpressionStatement
-                                                             yield•()       YieldExpression
-                                                                   ()       TupleLiteral                                                  */
+	static•move•||•{•let•a•=•A::<Box<dyn•D>>•{•b:•E::r(),•};•yield•();•}    ClosureFunctionExpression{move, static}
+	            ||                                                          ClosureFunctionExpression.parameters{dk: "||"}
+	               {•let•a•=•A::<Box<dyn•D>>•{•b:•E::r(),•};•yield•();•}    BlockExpression
+	                 let•a•=•A::<Box<dyn•D>>•{•b:•E::r(),•};                LetVariableDeclaration
+	                         A::<Box<dyn•D>>•{•b:•E::r(),•}                 StructLiteral
+	                         A::<Box<dyn•D>>                                ExpressionTypeCast
+	                            <Box<dyn•D>>                                ExpressionTypeCast.typeArguments{dk: "<>"}
+	                             Box<dyn•D>                                 TypeCall
+	                                <dyn•D>                                 TypeCall.typeArguments{dk: "<>"}
+	                                 dyn•D                                  TypeDynBounds{dyn}
+	                                     D                                  TypeTraitBound{!maybeConst, !optional}
+	                                         {•b:•E::r(),•}                 StructLiteral.properties{dk: "{}"}
+	                                           b:•E::r()                    StructLiteralProperty
+	                                              E::r()                    CallExpression
+	                                              E::r                      ExpressionPath
+	                                                  ()                    CallExpression.arguments{dk: "()"}
+	                                                         yield•();      ExpressionStatement{semi}
+	                                                         yield•()       YieldExpression
+	                                                               ()       TupleLiteral                                                  */
 	|_| { a!("-> {}", yield); },                                                                                                          /*
-    |_|•{•a!("->•{}",•yield);•}    ClosureFunctionExpression
-     _                             ClosureFunctionParameterDeclaration, WildcardPattern
-        {•a!("->•{}",•yield);•}    BlockExpression
-          a!("->•{}",•yield);      ExpressionStatement
-          a!("->•{}",•yield)       MacroInvocation
-             "->•{}"               Literal
-                    ,              PunctuationToken                                                                                       */
+	|_|•{•a!("->•{}",•yield);•}    ClosureFunctionExpression
+	|_|                            ClosureFunctionExpression.parameters{dk: "||"}
+	 _                             ClosureFunctionParameterDeclaration, WildcardPattern
+	    {•a!("->•{}",•yield);•}    BlockExpression
+	      a!("->•{}",•yield);      ExpressionStatement{semi}
+	      a!("->•{}",•yield)       MacroInvocation
+	        ("->•{}",•yield)       MacroInvocation.segments{dk: "()"}
+	         "->•{}"               Literal{kind: String}
+	                ,              PunctuationToken{tk: ","}                                                                              */
 ]                                                                                                                                         /*
-]    </ExpressionStatement>, </ArrayLiteral>                                                                                              */
-
+]    </ArrayLiteral>
+]    </ExpressionStatement>
+]    </Program.ast>
+]    </Program>                                                                                                                           */
 // Discarded Nodes: 0
 // Parsed Nodes: 39
 // state_rollbacks: 0
