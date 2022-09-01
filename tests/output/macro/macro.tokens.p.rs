@@ -1945,7 +1945,8 @@ macro_rules!•x•{↲    <MacroRulesDeclaration>
                   (final)      DelimGroup                                                                                                 */
 
 lexes!{a #foo}                                                                                                                            /*
-lexes!{a•#foo}    ExpressionStatement~ownStart, MacroInvocation
+lexes!{a•#foo}    ExpressionStatement~ownStart
+lexes!{a•#foo}    MacroInvocation
       {a•#foo}    MacroInvocation.segments{dk: "{}"}
          #        PunctuationToken{tk: "#"}
 lexes!{a•#foo}    </ExpressionStatement>                                                                                                  */

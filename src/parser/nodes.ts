@@ -408,6 +408,8 @@ export type MaybeMoveNode = Extract<Node, MoveModifier>;
 export type MaybeUnsafeNode = Extract<Node, UnsafeModifier>;
 export type MaybeStaticNode = Extract<Node, StaticModifier>;
 
+export type MacroRule = MacroRuleDeclaration | MacroInlineRuleDeclaration;
+
 export type PathNode = ItemPath | ExpressionPath | TypePath;
 export type RangeNode = RangeLiteral | RangePattern;
 export type FunctionNode = FunctionDeclaration | ClosureFunctionExpression;

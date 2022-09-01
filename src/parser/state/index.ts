@@ -1,6 +1,7 @@
 import {
 	assignAttributes,
 	end,
+	hasAttributes,
 	insertNode,
 	insertNodes,
 	is_MaybeExternNode,
@@ -11,7 +12,7 @@ import {
 	start,
 } from "../../utils/ast";
 import { CharCode } from "../../utils/CharCode";
-import { binarySearch, getLineStarts, last_of, Narrow, spliceAll, strChar, strToken } from "../../utils/common";
+import { binarySearch, getLineStarts, last_of, min, Narrow, spliceAll, strChar, strToken } from "../../utils/common";
 import {
 	getDelimEndCharCode,
 	getDelimStartCharCode,
@@ -920,19 +921,22 @@ function __may_claim_attributes(attrs: AttributeOrDocComment[]) {
 export function skip_whitespace_getProgramStartPos() {
 	skip_whitespace();
 	return Math.min(
-		0 === ATTRIBUTES_INNER.length ? pos : start(ATTRIBUTES_INNER[0]), //
+		pos,
 		0 === COMMENTS.length ? pos : start(COMMENTS[0]),
-		pos
+		0 === ATTRIBUTES_INNER.length ? pos : start(ATTRIBUTES_INNER[0]), //
+		0 === ATTRIBUTES_OUTER.length ? pos : start(ATTRIBUTES_OUTER[0]), //
+		0 === ATTRIBUTES_DANGLING.length ? pos : start(ATTRIBUTES_DANGLING[0]) //
 	);
 }
 
-export function getProgramEndPos() {
+export function getProgramEndPos(program: Program) {
 	return Math.max(
+		getPreWhitespaceSkipPosition(),
+		0 === COMMENTS.length ? 0 : end(last_of(COMMENTS)),
 		0 === ATTRIBUTES_INNER.length ? 0 : end(last_of(ATTRIBUTES_INNER)), //
 		0 === ATTRIBUTES_OUTER.length ? 0 : end(last_of(ATTRIBUTES_OUTER)), //
 		0 === ATTRIBUTES_DANGLING.length ? 0 : end(last_of(ATTRIBUTES_DANGLING)), //
-		0 === COMMENTS.length ? 0 : end(last_of(COMMENTS)),
-		getPreWhitespaceSkipPosition()
+		!hasAttributes(program) ? 0 : end(last_of(program.attributes))
 	);
 }
 

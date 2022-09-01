@@ -1605,8 +1605,8 @@ fn•a()•{↲    <FunctionDeclaration>
 		                                 =                  PunctuationToken{tk: "="}
 		                                  "windows"         Literal{kind: String}                                                         */
             #[cfg(target_os="windows")]{                                                                                                  /*
-            #[cfg(target_os="windows")]      (dangling) Attribute{!inner}
-             [cfg(target_os="windows")]      (dangling) Attribute.segments{dk: "[]"}
+            #[cfg(target_os="windows")]      Attribute#DANGLING{!inner}
+             [cfg(target_os="windows")]      Attribute#DANGLING.segments{dk: "[]"}
                  (target_os="windows")       DelimGroup
                            =                 PunctuationToken{tk: "="}
                             "windows"        Literal{kind: String}
@@ -1624,8 +1624,8 @@ fn•a()•{↲    <FunctionDeclaration>
                                          =                  PunctuationToken{tk: "="}
                                           "windows"         Literal{kind: String}                                                         */
             #[cfg(target_os="windows")]                                                                                                   /*
-            #[cfg(target_os="windows")]    (dangling) Attribute{!inner}
-             [cfg(target_os="windows")]    (dangling) Attribute.segments{dk: "[]"}
+            #[cfg(target_os="windows")]    Attribute#DANGLING{!inner}
+             [cfg(target_os="windows")]    Attribute#DANGLING.segments{dk: "[]"}
                  (target_os="windows")     DelimGroup
                            =               PunctuationToken{tk: "="}
                             "windows"      Literal{kind: String}                                                                          */

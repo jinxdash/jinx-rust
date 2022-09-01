@@ -30,7 +30,7 @@ impl•const•T•for•S•{↲    <ImplDeclaration{const}>
 #[attr_0]     Attribute{!inner}
  [attr_0]     Attribute.segments{dk: "[]"}                                                                                                */
 impl const T for S {                                                                                                                      /*
-impl•const•T•for•S•{↲    ImplDeclaration~ownStart
+impl•const•T•for•S•{↲    <ImplDeclaration~ownStart>
                    {↲    <ImplDeclaration.body{dk: "{}"}>                                                                                 */
 	#![attr_1] // comment
 /*	#![attr_1]               Attribute{inner}

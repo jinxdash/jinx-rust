@@ -29,7 +29,7 @@ auto•trait•T•{↲    <AutoTraitDeclaration>                               
 #[attr_0]     Attribute{!inner}
  [attr_0]     Attribute.segments{dk: "[]"}                                                                                                */
 auto trait T {                                                                                                                            /*
-auto•trait•T•{↲    AutoTraitDeclaration~ownStart                                                                                          */
+auto•trait•T•{↲    <AutoTraitDeclaration~ownStart>                                                                                        */
 	#![attr_1] // comment
 /*	#![attr_1]               Attribute{inner}
 	  [attr_1]               Attribute.segments{dk: "[]"}                                                                                 */
