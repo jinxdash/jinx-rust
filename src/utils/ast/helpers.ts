@@ -50,6 +50,8 @@ import {
 	is_PathNode,
 } from "./nodetype";
 
+//#region ======================================[        Common AST "has x" helpers        ]================================================``--.
+
 export type WithAttributes<T extends Node> = T & { attributes: AttributeOrDocComment[] };
 export type ParameterOf<T extends FunctionLikeNode> =
 	| T["parameters"]
@@ -103,9 +105,8 @@ export function hasBody(node: Node): node is NodeWithBody & { body: {} } {
 export function hasGenerics(node: Node): node is DeclarationNode & { generics: {} } {
 	return is_DeclarationNode(node) && has_key_non_empty_array(node, "generics");
 }
-export function hasSelfParameter(
-	node: FunctionLikeNode
-): node is FunctionLikeNode & { parameters: { self: FunctionSelfParameterDeclaration } } {
+// prettier-ignore
+export function hasSelfParameter(node: FunctionLikeNode): node is FunctionLikeNode & { parameters: { self: FunctionSelfParameterDeclaration } } {
 	return is_FunctionDeclaration(node) && is_defined(node.parameters.self);
 }
 export function hasParameters(node: FunctionLikeNode): boolean {
@@ -119,10 +120,15 @@ export function hasMethod(node: CallExpression): node is CallExpression & { meth
 export function hasTypeBounds(node: Node): node is NodeWithTypeBounds & { typeBounds: {} } {
 	return is_NodeWithTypeBounds(node) && is_defined(node.typeBounds);
 }
+
 type NodeWithMaybeExpressionProperty = Extract<Node, MaybeExpressionBody>;
 export function hasExpression(node: NodeWithMaybeExpressionProperty): node is NodeWithMaybeExpressionProperty & { expression: {} } {
 	return has_key_defined(node, "expression");
 }
+
+//#endregion ===============================================================================================================================..--'
+
+//#region ======================================[        Common AST "get x" helpers        ]================================================``--.
 
 export function getParameters<T extends FunctionLikeNode>(node: T) {
 	return (hasSelfParameter(node) ? [node.parameters.self, ...node.parameters] : node.parameters) as
@@ -135,11 +141,8 @@ export function getFirstParameter<T extends FunctionLikeNode>(node: T): Paramete
 export function getLastParameter<T extends FunctionLikeNode>(node: T): ParameterOf<T> | undefined {
 	return (isEmpty(node.parameters) ? (hasSelfParameter(node) ? node.parameters.self : undefined) : last_of(node.parameters)) as any;
 }
-
-export function getBodyOrCases<T extends { body: any } | { cases: any }>(
-	node: T
-): T extends { body: infer U } ? U : T extends { cases: infer U } ? U : never {
-	__DEV__: assert("body" in node || "cases" in node, "", node);
+// prettier-ignore
+export function getBodyOrCases<T extends { body: any } | { cases: any }>(node: T): T extends { body: infer U } ? U : T extends { cases: infer U } ? U : never {
 	return "body" in node ? node.body : node.cases;
 }
 
@@ -148,6 +151,21 @@ export function getMacroName(node: MacroInvocation) {
 	if (is_Identifier(callee)) return callee.name;
 	if (is_PathNode(callee)) return callee.segment.name;
 	exit("Expected Identifier | PathNode", node);
+}
+
+export function getLeftMostCondition(node: ConditionExpression): ScrutineeExpression {
+	for (var target = node; is_LogicalExpression(target); target = target.left);
+	return target as any;
+}
+
+// prettier-ignore
+export function getParenthesizedNodeContent<T extends ParenthesizedNode>(node: T): NodeChildTypes<T> {
+	switch (node.nodeType) {
+		case NodeType.ParenthesizedExpression: return node.expression as any;
+		case NodeType.ParenthesizedPattern: return node.pattern as any;
+		case NodeType.TypeParenthesized: return node.typeExpression as any;
+	}
+	exit.never(node);
 }
 
 export function countRawLiteralHashtags(node: Literal) {
@@ -168,17 +186,4 @@ export function getDelimChars(node: Delimited): DelimChars {
 	exit.never(node);
 }
 
-export function getLeftMostCondition(node: ConditionExpression): ScrutineeExpression {
-	for (var target = node; is_LogicalExpression(target); target = target.left);
-	return target as any;
-}
-
-// prettier-ignore
-export function getParenthesizedNodeContent<T extends ParenthesizedNode>(node: T): NodeChildTypes<T> {
-	switch (node.nodeType) {
-		case NodeType.ParenthesizedExpression: return node.expression as any;
-		case NodeType.ParenthesizedPattern: return node.pattern as any;
-		case NodeType.TypeParenthesized: return node.typeExpression as any;
-	}
-	exit.never(node);
-}
+//#endregion ===============================================================================================================================..--'

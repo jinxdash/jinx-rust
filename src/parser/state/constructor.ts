@@ -90,7 +90,7 @@ export function FileLocProgram<T extends typeof Program>(specClass: T) {
 		() => new Loc(GET_SOURCE(), skip_whitespace_getProgramStartPos(), 0),
 		function (READ_NODE) {
 			READ_NODE();
-			setRangeEnd(this, getProgramEndPos());
+			setRangeEnd(this, getProgramEndPos(this));
 			__DEV__: assert(GET_POSITION() === GET_LENGTH());
 		}
 	);

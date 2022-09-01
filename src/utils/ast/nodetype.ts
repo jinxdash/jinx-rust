@@ -90,6 +90,7 @@ import {
 	MacroInlineRuleDeclaration,
 	MacroInvocation,
 	MacroParameterDeclaration,
+	MacroRule,
 	MacroRuleDeclaration,
 	MacroRulesDeclaration,
 	MatchExpression,
@@ -237,6 +238,8 @@ export function isTK(node: Node, tk: TK): node is PunctuationToken & { tk: TK } 
 export function includesTK(node: DelimitedSequence<any>, tk: TK) {
 	return node.segments.some((segment) => isTK(segment, tk));
 }
+
+//#region ==============================================[        Generated        ]=========================================================``--.
 
 // <generated>
 export function is_MissingNode(node: Node): node is MissingNode {
@@ -1116,6 +1119,18 @@ export function is_MaybeStaticNode(node: Node): node is MaybeStaticNode {
 	__DEV__: assert.isNode(node);
 	return is_ClosureFunctionExpression(node);
 }
+export function is_MacroRule(node: Node): node is MacroRule {
+	// prettier-ignore
+	AssertTypesEq<MacroRule, MacroRuleDeclaration | MacroInlineRuleDeclaration>();
+	__DEV__: assert.isNode(node);
+	switch (node.nodeType) {
+		case 19:
+		case 20:
+			return true;
+		default:
+			return false;
+	}
+}
 export function is_PathNode(node: Node): node is PathNode {
 	// prettier-ignore
 	AssertTypesEq<PathNode, ItemPath | ExpressionPath | TypePath>();
@@ -1836,13 +1851,9 @@ export function can_have_OuterAttributes(node: Node, parent: Node | undefined, s
 }
 // </generated>
 
-export function can_have_InnerAttributes(node: Node): node is NodeWithBodyOrCases {
-	return is_NodeWithBodyOrCases(node) || is_NodeWithBodyNoBody(node);
-}
+//#endregion ===============================================================================================================================..--'
 
-export function can_have_Attributes(node: Node, parent: Node | undefined, stmt_expr_attributes: boolean): boolean {
-	return can_have_InnerAttributes(node) || can_have_OuterAttributes(node, parent, stmt_expr_attributes);
-}
+//#region =================================================[        PRCD        ]===========================================================``--.
 
 export function getPrecedence(node: ExpressionNode | ConditionExpression, insideScrutinee: boolean): PRCD {
 	switch (node.nodeType) {
@@ -1899,29 +1910,24 @@ export function getPrecedence(node: ExpressionNode | ConditionExpression, inside
 	}
 }
 
+//#region ============================================[        Miscellaneous        ]=======================================================``--.
+
+//#------------------------------------------------+        Node advanced kinds        +----------------------------------------------------.
+
 export function is_MacroInvocation_BlockLike(node: Node): node is MacroInvocation {
 	return is_MacroInvocation(node) && node.segments.dk === DelimKind["{}"];
 }
+
 export function is_ExpressionWithBodyOrCases_or_BlockLikeMacroInvocation(node: Node) {
 	return is_ExpressionWithBodyOrCases(node) || is_MacroInvocation_BlockLike(node);
-}
-
-export function isInner(node: AttributeOrDocComment): node is AttributeOrDocComment & { inner: true } {
-	return node.inner;
-}
-
-export function isOuter(node: AttributeOrDocComment): node is AttributeOrDocComment & { inner: false } {
-	return !node.inner;
 }
 
 export function is_ElseBlock(node: Node, parent: Node): parent is IfBlockExpression {
 	return is_IfBlockExpression(parent) && parent.else === node;
 }
-
 export function is_CaseBlock(node: Node, parent: Node): parent is MatchExpressionCase {
 	return is_MatchExpressionCase(parent) && parent.expression === node;
 }
-
 export function is_ClosureBlock(node: Node, parent: Node): parent is ClosureFunctionExpression {
 	return is_ClosureFunctionExpression(parent) && parent.expression === node;
 }
@@ -1930,86 +1936,84 @@ export function is_FlowControlMaybeValueExpression(node: Node): node is Exclude<
 	return is_FlowControlExpression(node) && !is_ContinueExpression(node);
 }
 
-export function is_MacroRule(node: Node): node is MacroRuleDeclaration | MacroInlineRuleDeclaration {
-	return is_MacroRuleDeclaration(node) || is_MacroInlineRuleDeclaration(node);
+// prettier-ignore
+export function is_BareTypeTraitBound(node: TypeTraitBound): node is TypeTraitBound & { maybeConst: false; optional: false; ltParameters: undefined } {
+	return !hasAttributes(node) && !node.maybeConst && !node.optional && undefined === node.ltParameters;
 }
 
-export function is_LiteralStringLike(
-	node: Node
-): node is Literal & { kind: LiteralKind.String | LiteralKind.rString | LiteralKind.bString | LiteralKind.brString } {
+//#----------------------------------------------------+        Literal kind        +-------------------------------------------------------.
+
+// prettier-ignore
+export function is_LiteralStringLike(node: Node): node is Literal & { kind: LiteralKind.bString | LiteralKind.brString | LiteralKind.rString | LiteralKind.String } {
 	switch (is_Literal(node) ? node.kind : LiteralKind.False) {
-		case LiteralKind.String:
-		case LiteralKind.rString:
-		case LiteralKind.bString:
-		case LiteralKind.brString:
-			return true;
-		default:
-			return false;
+		case LiteralKind.bString: case LiteralKind.brString: case LiteralKind.rString: case LiteralKind.String: return true;
+		default: return false;
 	}
 }
 
-export function is_LiteralRawStringLike(node: Node): node is Literal & { kind: LiteralKind.rString | LiteralKind.brString } {
+// prettier-ignore
+export function is_LiteralRawStringLike(node: Node): node is Literal & { kind: LiteralKind.brString | LiteralKind.rString } {
 	switch (is_Literal(node) ? node.kind : LiteralKind.False) {
-		case LiteralKind.rString:
-		case LiteralKind.brString:
-			return true;
-		default:
-			return false;
+		case LiteralKind.rString: case LiteralKind.brString: return true;
+		default: return false;
 	}
 }
 
-export function is_LiteralNumberLike(
-	node: Node
-): node is Literal & { kind: LiteralKind.Integer | LiteralKind.Hex | LiteralKind.Octal | LiteralKind.Binary | LiteralKind.Float } {
+// prettier-ignore
+export function is_LiteralNumberLike(node: Node): node is Literal & { kind: LiteralKind.Binary | LiteralKind.Hex | LiteralKind.Octal | LiteralKind.Integer | LiteralKind.Float } {
 	switch (is_Literal(node) ? node.kind : LiteralKind.False) {
-		case LiteralKind.Integer:
-		case LiteralKind.Hex:
-		case LiteralKind.Octal:
-		case LiteralKind.Binary:
-		case LiteralKind.Float:
-			return true;
-		default:
-			return false;
+		case LiteralKind.Binary: case LiteralKind.Hex: case LiteralKind.Octal: case LiteralKind.Integer: case LiteralKind.Float: return true;
+		default: return false;
 	}
 }
 
+// prettier-ignore
 export function is_LiteralBooleanLike(node: Node): node is Literal & { kind: LiteralKind.False | LiteralKind.True } {
 	switch (is_Literal(node) ? node.kind : LiteralKind.Char) {
-		case LiteralKind.False:
-		case LiteralKind.True:
-			return true;
-		default:
-			return false;
+		case LiteralKind.False: case LiteralKind.True: return true;
+		default: return false;
 	}
 }
 
-export function is_BlockCommentKind(node: AttributeOrComment): node is CommentOrDocComment & { line: false } {
-	return !node.line;
+//#-----------------------------------------------+        Attr/Doc/Comment kind        +---------------------------------------------------.
+
+export function isInner(node: AttributeOrDocComment): node is AttributeOrDocComment & { inner: true } {
+	return node.inner;
+}
+export function isOuter(node: AttributeOrDocComment): node is AttributeOrDocComment & { inner: false } {
+	return !node.inner;
+}
+export function isDangling(node: AttributeOrDocComment): boolean {
+	return node.loc.src.program.danglingAttributes.includes(node);
 }
 
 export function is_LineCommentKind(node: AttributeOrComment): node is CommentOrDocComment & { line: true } {
 	return node.line;
 }
+export function is_BlockCommentKind(node: AttributeOrComment): node is CommentOrDocComment & { line: false } {
+	return !node.line;
+}
 
 export function is_BlockCommentNode(node: Node): node is CommentOrDocComment & { line: false } {
 	return is_CommentOrDocComment(node) && is_BlockCommentKind(node);
 }
-
 export function is_LineCommentNode(node: Node): node is CommentOrDocComment & { line: true } {
 	return is_CommentOrDocComment(node) && is_LineCommentKind(node);
 }
 
-export function is_BareTypeTraitBound(
-	node: TypeTraitBound
-): node is TypeTraitBound & { maybeConst: false; optional: false; ltParameters: undefined } {
-	__DEV__: assert(is_TypeTraitBound(node));
-	return !hasAttributes(node) && !node.maybeConst && !node.optional && undefined === node.ltParameters;
+export function can_have_InnerAttributes(node: Node): node is NodeWithBodyOrCases {
+	return is_NodeWithBodyOrCases(node) || is_NodeWithBodyNoBody(node);
 }
+export function can_have_Attributes(node: Node, parent: Node | undefined, stmt_expr_attributes: boolean): boolean {
+	return can_have_InnerAttributes(node) || can_have_OuterAttributes(node, parent, stmt_expr_attributes);
+}
+
+//#-----------------------------------------------------+        Token kind        +--------------------------------------------------------.
 
 // prettier-ignore
 export function is_multiplicativeOperator(tk: number): boolean {
 	switch (tk) {
-		case TK["%"]: case TK["*"]: case TK["/"]: return true;
+		case TK["*"]: case TK["/"]: case TK["%"]: return true;
 		default: return false;
 	}
 }
@@ -2025,7 +2029,7 @@ export function is_bitshiftOperator(tk: number): boolean {
 // prettier-ignore
 export function is_BitwiseOperator(tk: number): boolean {
 	switch (tk) {
-		case TK["<<"]: case TK[">>"]: case TK["|"]: case TK["^"]: case TK["&"]: return true;
+		case TK["&"]: case TK["|"]: case TK["^"]: case TK["<<"]: case TK[">>"]: return true;
 		default: return false;
 	}
 }
@@ -2033,7 +2037,7 @@ export function is_BitwiseOperator(tk: number): boolean {
 // prettier-ignore
 export function is_LargerLesserOperator(tk: number): boolean {
 	switch (tk) {
-		case TK[">"]: case TK["<"]: case TK["<="]: case TK[">="]: return true;
+		case TK[">"]: case TK[">="]: case TK["<"]: case TK["<="]: return true;
 		default: return false;
 	}
 }
@@ -2045,3 +2049,5 @@ export function is_EqualityOperator(tk: number): boolean {
 		default: return false;
 	}
 }
+
+//#endregion ===============================================================================================================================..--'

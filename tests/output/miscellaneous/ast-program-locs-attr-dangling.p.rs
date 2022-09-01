@@ -7,8 +7,8 @@ struct T;                                                                       
 struct•T;    Program.ast{dk: "None"}
 struct•T;    StructDeclaration                                                                                                            */
 #[attr]                                                                                                                                   /*
-#[attr]    (dangling) Attribute{!inner}
- [attr]    (dangling) Attribute.segments{dk: "[]"}                                                                                        */
+#[attr]    Attribute#DANGLING{!inner}
+ [attr]    Attribute#DANGLING.segments{dk: "[]"}                                                                                          */
 // comment
 //•comment    Comment{line}
 //•comment    </Program>

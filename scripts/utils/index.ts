@@ -204,10 +204,11 @@ export function rs_print_samples(
 			name: file.name.slice(0, -3),
 			outdir: OUTDIR,
 		};
+
 		for (const f of toArray(printer)) {
-			f((files, fn, extraLinksToOutput = {}) => {
+			f(function (files, fn, extraLinksToOutput = {}) {
 				let extra = "";
-				const Output = fn((msg) => void (extra += "\n// " + msg.split(/\n/g).join("\n// ")));
+				const Output = fn((msg) => void (extra += msg.replace(/^|\n\s*/g, "\n// ")));
 				extra += getEndCommentInfo(extraLinksToOutput);
 				each(files, (filepath, K) => {
 					const content = Output[K];
@@ -238,12 +239,15 @@ export function rs_print_samples(
 
 		tests_times.set(file.cmd, Date.now() - TIMER_START);
 	}).then(() => {
-		const sorted_times = [...tests_times.entries()].sort((a, b) => b[1] - a[1]);
-		let total = 0.0;
-		for (const { 1: t } of sorted_times) total += t;
-		linelog.set(color.green(`✓ Processed samples in ${color.bold(pretty_timespan(total))}`));
-		if (PRINT_DEBUG)
+		linelog.set(
+			color.green(`✓ Processed samples in ${color.bold(pretty_timespan([...tests_times.entries()].reduce((p, n) => p + n[1], 0.0)))}`)
+		);
+
+		if (PRINT_DEBUG) {
+			const sorted_times = [...tests_times.entries()].sort((a, b) => b[1] - a[1]);
 			for (const { 0: cmd, 1: t } of sorted_times) if (t > 500) console.log(`${color.red(pretty_timespan(t))} ${color.grey(cmd)}`);
+		}
+
 		remove_unknown_files(printed_dir, known_files);
 	});
 }

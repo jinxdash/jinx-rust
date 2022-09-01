@@ -219,7 +219,7 @@ pub                                               PubSpecifier
  [repr(i128)]     Attribute.segments{dk: "[]"}
       (i128)      DelimGroup                                                                                                              */
 enum Signed {                                                                                                                             /*
-enum•Signed•{↲    EnumDeclaration~ownStart
+enum•Signed•{↲    <EnumDeclaration~ownStart>
             {↲    <EnumDeclaration.members{dk: "{}"}>                                                                                     */
     Zero = 0,                                                                                                                             /*
     Zero•=•0    EnumMemberDeclaration
@@ -251,7 +251,7 @@ enum•Signed•{↲    EnumDeclaration~ownStart
  [repr(u128)]     Attribute.segments{dk: "[]"}
       (u128)      DelimGroup                                                                                                              */
 enum Unsigned {                                                                                                                           /*
-enum•Unsigned•{↲    EnumDeclaration~ownStart
+enum•Unsigned•{↲    <EnumDeclaration~ownStart>
               {↲    <EnumDeclaration.members{dk: "{}"}>                                                                                   */
     Zero = 0,                                                                                                                             /*
     Zero•=•0    EnumMemberDeclaration

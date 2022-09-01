@@ -197,7 +197,7 @@ extern•crate•b•as•d;    </ExternCrateStatement>                         
 #![attr_3]    Attribute{inner}
   [attr_3]    Attribute.segments{dk: "[]"}                                                                                                */
 fn attr_3_3a_target() {                                                                                                                   /*
-fn•attr_3_3a_target()•{↲    FunctionDeclaration~ownStart
+fn•attr_3_3a_target()•{↲    <FunctionDeclaration~ownStart>
                    ()       FunctionDeclaration.parameters{dk: "()"}
                       {↲    <FunctionDeclaration.body{dk: "{}"}>                                                                          */
     #![attr_3a]                                                                                                                           /*
@@ -246,7 +246,7 @@ trait•foo_C•{↲    <TraitDeclaration>
 #![attr_6]    Attribute{inner}
   [attr_6]    Attribute.segments{dk: "[]"}                                                                                                */
 fn main() {                                                                                                                               /*
-fn•main()•{↲    FunctionDeclaration~ownStart
+fn•main()•{↲    <FunctionDeclaration~ownStart>
        ()       FunctionDeclaration.parameters{dk: "()"}
           {↲    <FunctionDeclaration.body{dk: "{}"}>                                                                                      */
     // comment
@@ -461,8 +461,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
     ||•#[attr]•return;    ExpressionStatement{semi}
     ||•#[attr]•return     ClosureFunctionExpression
     ||                    ClosureFunctionExpression.parameters{dk: "||"}
-       #[attr]            (dangling) Attribute{!inner}
-        [attr]            (dangling) Attribute.segments{dk: "[]"}
+       #[attr]            Attribute#DANGLING{!inner}
+        [attr]            Attribute#DANGLING.segments{dk: "[]"}
                return     ReturnExpression                                                                                                */
 	let a = #[attr] [1; 4];                                                                                                               /*
 	let•a•=•#[attr]•[1;•4];    LetVariableDeclaration
@@ -501,19 +501,19 @@ fn•main()•{↲    FunctionDeclaration~ownStart
     let a = (#[attr] s).data;                                                                                                             /*
     let•a•=•(#[attr]•s).data;    LetVariableDeclaration
             (#[attr]•s).data     MemberExpression{!computed}
-             #[attr]             (dangling) Attribute{!inner}
-              [attr]             (dangling) Attribute.segments{dk: "[]"}                                                                  */
+             #[attr]             Attribute#DANGLING{!inner}
+              [attr]             Attribute#DANGLING.segments{dk: "[]"}                                                                    */
     let a = (#[attr] t).0;                                                                                                                /*
     let•a•=•(#[attr]•t).0;    LetVariableDeclaration
             (#[attr]•t).0     MemberExpression{!computed}
-             #[attr]          (dangling) Attribute{!inner}
-              [attr]          (dangling) Attribute.segments{dk: "[]"}
+             #[attr]          Attribute#DANGLING{!inner}
+              [attr]          Attribute#DANGLING.segments{dk: "[]"}
                         0     Index                                                                                                       */
     let a = (#[attr] v)[0];                                                                                                               /*
     let•a•=•(#[attr]•v)[0];    LetVariableDeclaration
             (#[attr]•v)[0]     MemberExpression{computed}
-             #[attr]           (dangling) Attribute{!inner}
-              [attr]           (dangling) Attribute.segments{dk: "[]"}
+             #[attr]           Attribute#DANGLING{!inner}
+              [attr]           Attribute#DANGLING.segments{dk: "[]"}
                         0      Literal{kind: Integer}                                                                                     */
     let a = #[attr] -0i32;                                                                                                                /*
     let•a•=•#[attr]•-0i32;    LetVariableDeclaration
@@ -680,8 +680,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
                     &#[attr]•0     ReferenceExpression~ownStart
             #[attr]                Attribute{!inner}
              [attr]                Attribute.segments{dk: "[]"}
-                     #[attr]       (dangling) Attribute{!inner}
-                      [attr]       (dangling) Attribute.segments{dk: "[]"}
+                     #[attr]       Attribute#DANGLING{!inner}
+                      [attr]       Attribute#DANGLING.segments{dk: "[]"}
                              0     Literal{kind: Integer}                                                                                 */
     let a = #[attr] &0;                                                                                                                   /*
     let•a•=•#[attr]•&0;    LetVariableDeclaration
@@ -696,8 +696,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
                     &mut•#[attr]•0     ReferenceExpression~ownStart
             #[attr]                    Attribute{!inner}
              [attr]                    Attribute.segments{dk: "[]"}
-                         #[attr]       (dangling) Attribute{!inner}
-                          [attr]       (dangling) Attribute.segments{dk: "[]"}
+                         #[attr]       Attribute#DANGLING{!inner}
+                          [attr]       Attribute#DANGLING.segments{dk: "[]"}
                                  0     Literal{kind: Integer}                                                                             */
     let a = #[attr] &mut 0;                                                                                                               /*
     let•a•=•#[attr]•&mut•0;    LetVariableDeclaration
@@ -728,8 +728,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
             #[attr]                   Attribute{!inner}
              [attr]                   Attribute.segments{dk: "[]"}
                     ||                ClosureFunctionExpression.parameters{dk: "||"}
-                       #[attr]        (dangling) Attribute{!inner}
-                        [attr]        (dangling) Attribute.segments{dk: "[]"}
+                       #[attr]        Attribute#DANGLING{!inner}
+                        [attr]        Attribute#DANGLING.segments{dk: "[]"}
                                ()     TupleLiteral                                                                                        */
     let a = #[attr] 0 + #[attr] 0;                                                                                                        /*
     let•a•=•#[attr]•0•+•#[attr]•0;    LetVariableDeclaration
@@ -738,8 +738,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
             #[attr]                   Attribute{!inner}
              [attr]                   Attribute.segments{dk: "[]"}
                     0                 Literal{kind: Integer}
-                        #[attr]       (dangling) Attribute{!inner}
-                         [attr]       (dangling) Attribute.segments{dk: "[]"}
+                        #[attr]       Attribute#DANGLING{!inner}
+                         [attr]       Attribute#DANGLING.segments{dk: "[]"}
                                 0     Literal{kind: Integer}                                                                              */
     let a = #[attr] 0 as usize;                                                                                                           /*
     let•a•=•#[attr]•0•as•usize;    LetVariableDeclaration
@@ -768,8 +768,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
             #[attr]                  Attribute{!inner}
              [attr]                  Attribute.segments{dk: "[]"}
                     0                Literal{kind: Integer}
-                       #[attr]       (dangling) Attribute{!inner}
-                        [attr]       (dangling) Attribute.segments{dk: "[]"}
+                       #[attr]       Attribute#DANGLING{!inner}
+                        [attr]       Attribute#DANGLING.segments{dk: "[]"}
                                0     Literal{kind: Integer}                                                                               */
     let a = #[attr] 1i32.clone();                                                                                                         /*
     let•a•=•#[attr]•1i32.clone();    LetVariableDeclaration
@@ -962,8 +962,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
             #[attr]                        Attribute{!inner}
              [attr]                        Attribute.segments{dk: "[]"}
                          ||                ClosureFunctionExpression.parameters{dk: "||"}
-                            #[attr]        (dangling) Attribute{!inner}
-                             [attr]        (dangling) Attribute.segments{dk: "[]"}
+                            #[attr]        Attribute#DANGLING{!inner}
+                             [attr]        Attribute#DANGLING.segments{dk: "[]"}
                                     ()     TupleLiteral                                                                                   */
     let a = #[attr] s.data;                                                                                                               /*
     let•a•=•#[attr]•s.data;    LetVariableDeclaration
@@ -1101,8 +1101,8 @@ fn•main()•{↲    FunctionDeclaration~ownStart
        (3•+•#[attr]•2)     CallExpression.arguments{dk: "()"}
         3•+•#[attr]•2      OperationExpression{tk: "+"}
         3                  Literal{kind: Integer}
-            #[attr]        (dangling) Attribute{!inner}
-             [attr]        (dangling) Attribute.segments{dk: "[]"}
+            #[attr]        Attribute#DANGLING{!inner}
+             [attr]        Attribute#DANGLING.segments{dk: "[]"}
                     2      Literal{kind: Integer}                                                                                         */
     foo3(x, #[attr] y, z);                                                                                                                /*
     foo3(x,•#[attr]•y,•z);    ExpressionStatement{semi}
@@ -1250,7 +1250,7 @@ static•X:•&[Y]•=•&[↲    <StaticVariableDeclaration>
 #[attr] struct BreaksWithComment ( #[attr] u8, #[attr] // comment
                                                                                                                                           /*
 #[attr]•struct•BreaksWithComment•(•#[attr]•u8,•#[attr]•//•comment↲    <TupleStructDeclaration>
-        struct•BreaksWithComment•(•#[attr]•u8,•#[attr]•//•comment↲    TupleStructDeclaration~ownStart
+        struct•BreaksWithComment•(•#[attr]•u8,•#[attr]•//•comment↲    <TupleStructDeclaration~ownStart>
 #[attr]                                                               Attribute{!inner}
  [attr]                                                               Attribute.segments{dk: "[]"}
                                  (•#[attr]•u8,•#[attr]•//•comment↲    <TupleStructDeclaration.items{dk: "()"}>
@@ -2010,7 +2010,7 @@ trait•A•{↲    <TraitDeclaration>
 /// fff
 ///•fff    DocCommentAttribute{!inner, line}
 impl Bar {                                                                                                                                /*
-impl•Bar•{↲    ImplDeclaration~ownStart
+impl•Bar•{↲    <ImplDeclaration~ownStart>
          {↲    <ImplDeclaration.body{dk: "{}"}>                                                                                           */
     /// 0
     ///•0↲    <FunctionDeclaration>
@@ -2030,7 +2030,7 @@ impl•Bar•{↲    ImplDeclaration~ownStart
           =                                                                     PunctuationToken{tk: "="}
             "•___•___•___•___•___•___•___•___•___•___•___•___•___•___•___•"     Literal{kind: String}                                     */
     fn foo(&mut self) -> isize {                                                                                                          /*
-    fn•foo(&mut•self)•->•isize•{↲    FunctionDeclaration~ownStart
+    fn•foo(&mut•self)•->•isize•{↲    <FunctionDeclaration~ownStart>
           (&mut•self)                FunctionDeclaration.parameters{dk: "()"}
            &mut•self                 FunctionSelfParameterDeclaration{ref, mut}
                                {↲    <FunctionDeclaration.body{dk: "{}"}>                                                                 */
@@ -2054,7 +2054,7 @@ impl•Bar•{↲    ImplDeclaration~ownStart
     /// 9
     ///•9    DocCommentAttribute{!inner, line}
     pub fn f2(self) {                                                                                                                     /*
-    pub•fn•f2(self)•{↲    FunctionDeclaration~ownStart
+    pub•fn•f2(self)•{↲    <FunctionDeclaration~ownStart>
     pub                   PubSpecifier
              (self)       FunctionDeclaration.parameters{dk: "()"}
               self        FunctionSelfParameterDeclaration{!ref, !mut}
@@ -2070,7 +2070,7 @@ impl•Bar•{↲    ImplDeclaration~ownStart
     #[attr]     Attribute{!inner}
      [attr]     Attribute.segments{dk: "[]"}                                                                                              */
     fn f3(self) -> Q {                                                                                                                    /*
-    fn•f3(self)•->•Q•{↲    FunctionDeclaration~ownStart
+    fn•f3(self)•->•Q•{↲    <FunctionDeclaration~ownStart>
          (self)            FunctionDeclaration.parameters{dk: "()"}
           self             FunctionSelfParameterDeclaration{!ref, !mut}
                      {↲    <FunctionDeclaration.body{dk: "{}"}>                                                                           */
@@ -2095,7 +2095,7 @@ impl•Bar•{↲    ImplDeclaration~ownStart
     /// 13
     ///•13    DocCommentAttribute{!inner, line}
     fn f4(self) -> A {                                                                                                                    /*
-    fn•f4(self)•->•A•{↲    FunctionDeclaration~ownStart
+    fn•f4(self)•->•A•{↲    <FunctionDeclaration~ownStart>
          (self)            FunctionDeclaration.parameters{dk: "()"}
           self             FunctionSelfParameterDeclaration{!ref, !mut}
                      {↲    <FunctionDeclaration.body{dk: "{}"}>                                                                           */
@@ -2316,7 +2316,8 @@ fn•f()•{↲    <FunctionDeclaration>
              (•on•(•expr•)•)       DelimGroup
                   (•expr•)         DelimGroup                                                                                             */
     {}                                                                                                                                    /*
-    {}    ExpressionStatement~ownStart, BlockExpression
+    {}    ExpressionStatement~ownStart
+    {}    BlockExpression
 ••••{}    </ExpressionStatement>                                                                                                          */
 
     // Semi
@@ -2462,7 +2463,7 @@ mod•v•{↲    <ModuleDeclaration>
                       =          PunctuationToken{tk: "="}
                         "x"      Literal{kind: String}                                                                                    */
     pub struct Params {                                                                                                                   /*
-    pub•struct•Params•{↲    StructDeclaration~ownStart
+    pub•struct•Params•{↲    <StructDeclaration~ownStart>
     pub                     PubSpecifier
                       {↲    <StructDeclaration.properties{dk: "{}"}>                                                                      */
         #[structopt(help = "x")]                                                                                                          /*
@@ -2665,8 +2666,8 @@ fn•a()•{↲    <FunctionDeclaration>
           ()       TupleLiteral
              {↲    <MatchExpression.cases{dk: "{}"}>                                                                                      */
         #[attr]                                                                                                                           /*
-        #[attr]    (dangling) Attribute{!inner}
-         [attr]    (dangling) Attribute.segments{dk: "[]"}                                                                                */
+        #[attr]    Attribute#DANGLING{!inner}
+         [attr]    Attribute#DANGLING.segments{dk: "[]"}                                                                                  */
     }                                                                                                                                     /*
 ••••}    </MatchExpression.cases>
 ••••}    </MatchExpression>
@@ -2712,7 +2713,7 @@ Debug, Clone,/* --------------- */Eq, PartialEq,                                
 )]    </Attribute.segments>
 )]    </Attribute>                                                                                                                        */
 struct Foo {                                                                                                                              /*
-struct•Foo•{↲    StructDeclaration~ownStart
+struct•Foo•{↲    <StructDeclaration~ownStart>
            {↲    <StructDeclaration.properties{dk: "{}"}>                                                                                 */
     a: i32,                                                                                                                               /*
     a:•i32    StructPropertyDeclaration                                                                                                   */
