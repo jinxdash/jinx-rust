@@ -38,21 +38,21 @@
 		"LICENSE"
 	],
 	"scripts": {
-		"e": "node --loader ts-node/esm/transpile-only --experimental-specifier-resolution=node --no-warnings",
-		"build": "pnpm run codegen-parser && pnpm run e -- ./scripts/build.ts && pnpm run test-build",
-		"test-build": "pnpm run e -- ./tests/test.build.ts",
-		"test-print-samples": "pnpm run e -- ./tests/print.ts",
-		"codegen-parser": "pnpm run e -- ./scripts/parser.codegen.ts",
-		"dev-repl": "pnpm run e -- ./scripts/dev.repl.ts",
-		"dev-parse-local": "pnpm run e -- ./scripts/dev.parser.ts"
+		"build": "ts-node ./scripts/build.ts",
+		"test-build": "ts-node ./tests/test.build.ts",
+		"test-print-samples": "ts-node ./tests/print.ts",
+		"codegen-parser": "ts-node ./scripts/parser.codegen.ts",
+		"dev-repl": "ts-node ./scripts/dev.repl.ts",
+		"dev-parse-local": "ts-node ./scripts/dev.parser.ts"
 	},
 	"devDependencies": {
+		"@swc/core": "^1.2.246",
 		"@types/node": "^18.6.1",
 		"@types/prettier": "^2.6.3",
 		"@typescript-eslint/typescript-estree": "^5.31.0",
 		"prettier": "^2.7.1",
 		"ts-node": "^10.9.1",
-		"tsup": "^6.2.0",
+		"tsup": "^6.2.3",
 		"typescript": "^4.7.4"
 	},
 	"prettier": {

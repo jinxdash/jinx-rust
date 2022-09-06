@@ -42,7 +42,7 @@ export function __SET_PARSER_ERROR_MNGR(_maybe_exit: ParserMaybeExit) {
 export function exit(message: string, ...ctx: any[]): never {
 	__parser_maybe_exit?.(message, ctx);
 	if (ctx.length > 0) console.log("Error context:", { ...ctx });
-	throw createCustomError({ message });
+	throw createCustomError({ message, ctor: exit });
 }
 exit.never = function never(...ctx: any[]): never {
 	exit("Reached unreachable code", ...ctx);
@@ -116,6 +116,15 @@ export function pretty_timespan(n: number) {
 	function num(n: number): string {
 		return n < 0 ? "-" + num(-n) : "" + (n | 0) + (n < 10 && n - (n | 0) >= 0.1 ? `.${((n - (n | 0)) * 10) | 0}` : "");
 	}
+}
+
+export function time() {
+	// @ts-expect-error
+	return (typeof performance === "undefined" ? Date : performance).now();
+}
+
+export function time_since(n: number) {
+	return time() - n;
 }
 
 function charCodeAtLast(str: string) {
@@ -427,10 +436,8 @@ export function is_thenable(value: any): value is PromiseLike<unknown> {
 // 	}
 // }
 
-export function resolve_then<T, R>(
-	value: T,
-	then: (v: Awaited<T>) => R
-): T extends Promise<any> ? Promise<Awaited<R>> : R extends Promise<any> ? R : R {
+
+export function resolve_then<T, R>(value: T, then: (v: Awaited<T>) => R): T extends Promise<any> ? Promise<Awaited<R>> : R {
 	return is_thenable(value) ? value.then(then) : (then(value as any) as any);
 }
 

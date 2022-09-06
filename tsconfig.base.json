@@ -27,5 +27,10 @@
 		// Project
 		"composite": true,
 		"isolatedModules": true
+	},
+	"ts-node": {
+		"esm": true,
+		"swc": true,
+		"experimentalSpecifierResolution": "node"
 	}
 }

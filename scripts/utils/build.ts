@@ -59,7 +59,7 @@ export function testBuilds<T>(
 	const line_log = create_console_line("...");
 	const failed: string[] = [];
 	let total = 0;
-	for_each_rs_file(samples, (file) => {
+	return for_each_rs_file(samples, (file) => {
 		line_log.set(color.grey(`(${total}) ` + file.cmd));
 
 		var expected = toValue(file, ts);
@@ -76,12 +76,13 @@ export function testBuilds<T>(
 
 		total++;
 	}).then(() => {
+		line_log.delete();
 		if (failed.length) {
-			line_log.delete();
+			// line_log.delete();
 			if (failed.length < 16) console.log(failed);
 			exit(color.red(`The build produced different output in ${failed.length / 2}/${total} samples`));
 		} else {
-			line_log.set(color.green(`✓ The build passed ${total} samples`));
+			console.log(color.bold(color.green(`✓ The build passed ${total} samples`)));
 		}
 	});
 }
