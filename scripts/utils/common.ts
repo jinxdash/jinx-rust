@@ -13,6 +13,7 @@ import {
 	MaybeFlatten,
 	normPath,
 	print_string,
+	toArray,
 } from "../../src/utils/common";
 import { cmd, fsStat, pathContains, read_file, read_json, remove_dir, remove_file, update_file, WriteOptions, write_ErrTemp } from "./fs";
 
@@ -216,41 +217,46 @@ function crawl_directory(dir: string, ext: string, filter_out: string[]): Promis
 				const target = path.join(dir, each_item);
 				if (each_item.endsWith(ext)) return target;
 				if (filter_out.includes(each_item)) return [];
-				return fs
-					.stat(target)
-					.then((stat) => (stat.isDirectory() ? crawl_directory(target, ext, filter_out) : []))
+				return fsStat(target)
+					.then((stat) => (stat?.isDirectory() ? crawl_directory(target, ext, filter_out) : []))
 					.catch(() => []);
 			}).catch(() => [])
 		)
 		.catch(() => []);
 }
 
-export function remove_unknown_files(target_root_dir: string, known_files: Set<string>) {
+export function remove_unknown_files(target_root_dirs: string | string[], known_files: Set<string>) {
+	target_root_dirs = toArray(target_root_dirs).map((dir) => path.resolve(dir));
 	for (const file of known_files) {
-		const r = path.resolve(file);
-		if (r !== file) known_files.delete(file), known_files.add(r);
-		if (!pathContains(target_root_dir, file)) exit("", { known_files: [...known_files], file, r, target_root_dir });
+		const resolvedPath = path.resolve(file);
+		if (resolvedPath !== file) known_files.delete(file), known_files.add(resolvedPath);
+		if (!target_root_dirs.some((dir) => pathContains(dir, file)))
+			exit("", { known_files: [...known_files], file, r: resolvedPath, target_root_dirs });
 	}
-	return (async function processDirectory(TARGET_DIR: string) {
-		const items = await fs.readdir(TARGET_DIR);
-		let files_count = 0;
-		for (const item of items) {
-			const target = path.resolve(TARGET_DIR, item);
-			if ((await fsStat(target))?.isDirectory()) {
-				processDirectory(target);
-			} else {
-				if (known_files.has(target)) {
-					files_count++;
-				} else {
-					remove_file(target);
+	return Promise.all(
+		target_root_dirs.map((target_root_dir) =>
+			(async function processDirectory(TARGET_DIR: string) {
+				const items = await fs.readdir(TARGET_DIR);
+				let files_count = 0;
+				for (const item of items) {
+					const target = path.join(TARGET_DIR, item);
+					if ((await fsStat(target))?.isDirectory()) {
+						processDirectory(target);
+					} else {
+						if (known_files.has(target)) {
+							files_count++;
+						} else {
+							remove_file(target);
+						}
+					}
 				}
-			}
-		}
-		if (files_count === 0 && TARGET_DIR !== target_root_dir) {
-			assert(!known_files.has(TARGET_DIR));
-			remove_dir(TARGET_DIR);
-		}
-	})(target_root_dir);
+				if (files_count === 0 && TARGET_DIR !== target_root_dir) {
+					assert(!known_files.has(TARGET_DIR));
+					remove_dir(TARGET_DIR);
+				}
+			})(target_root_dir)
+		)
+	);
 }
 
 export interface File {

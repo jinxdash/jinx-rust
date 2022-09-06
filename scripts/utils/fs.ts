@@ -1,7 +1,7 @@
 import { existsSync, FSWatcher, mkdirSync, readdirSync, readFileSync, rmSync, Stats, statSync, watch, writeFileSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { assert, color, exit, normPath, resolve_then, spliceAll } from "../../src/utils/common";
+import { assert, color, exit, normPath, resolve_then } from "../../src/utils/common";
 import { JSONstringify, prettier_format } from "./common";
 
 export function cmd(filepath: string | undefined, frompath = "") {
@@ -28,7 +28,7 @@ interface FsContentOptions extends FsOptions {
 interface ReadOptions extends FsContentOptions {}
 export interface WriteOptions extends FsContentOptions {}
 interface RmOptions extends FsOptions {}
-type FsOp<Opts extends { sync?: boolean }, T> = Opts extends { sync: false } ? Promise<T> : T;
+type FsOp<O extends { sync?: boolean }, T> = O extends { sync: false } ? Promise<T> : T;
 
 export function read_file<T extends Partial<ReadOptions>>(
 	filepath: string,
@@ -104,17 +104,12 @@ export function update_file<T extends Partial<WriteOptions>>(
 	return __write_file(filepath, content, opts, false);
 }
 
-const pending_logs: string[] = [];
 function fs_log(sync: boolean, msg: string) {
 	if (sync) console.log(msg);
-	else if (1 === pending_logs.push(msg)) {
-		(function r(t: number) {
-			const prev = pending_logs.length;
-			setTimeout(() => {
-				if (prev !== pending_logs.length && t < 2000) r(t);
-				else console.log(spliceAll(pending_logs).join("\n"));
-			}, (t += 200));
-		})(0);
+	else {
+		setImmediate(() => {
+			console.log(msg);
+		});
 	}
 }
 

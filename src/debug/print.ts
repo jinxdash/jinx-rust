@@ -18,7 +18,6 @@ import {
 	start,
 } from "../utils/ast";
 import {
-	assert,
 	binarySearch,
 	calcLineWidth,
 	count_occurences,
@@ -190,7 +189,7 @@ class pLine {
 	readonly blankContent = this.f.file.code.slice(this.start, this.end).replace(/[^\t]/g, " ");
 }
 
-function print(FILE: pFile, LINE: pLine) {
+function print(LINE: pLine) {
 	const ITEMS = filterSortMap(
 		LINE.items,
 		(p) => (p.firstLine === LINE || p.lastLine === LINE) && !p.shouldOmit(LINE),
@@ -401,11 +400,6 @@ function sliceAtLine(p: pItem, line: pLine) {
 	);
 }
 
-/**
- * given: "{ 0 }"
- * line items: [Block, Stmt, Lit]
- * returns: [[Block], [Stmt, Lit]]
- */
 function combineItems<T, R>(
 	ITEMS: T[],
 	include: (prevItem: T, nextItem: T, currentChunk: T[]) => boolean,
@@ -439,9 +433,7 @@ class pFile {
 	declare lines: pLine[];
 	constructor(readonly file: SourceFile) {}
 	print() {
-		// const maxLineLength = Math.max(...this.lines.map((p) => p.lineWidth)) + 4;
-		// return this.lines.map((line) => line.printLine(maxLineLength)).join(""); //.replace(/\t/g, "    ");
-		return this.lines.map((line) => print(this, line)).join("\n");
+		return this.lines.map((line) => print(line)).join("\n");
 	}
 	toString() {
 		return this.print();

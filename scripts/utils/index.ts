@@ -1,6 +1,7 @@
-import { spawn } from "node:child_process";
+import { fork } from "node:child_process";
 import { watch } from "node:fs";
 import path from "node:path";
+import { inspect } from "node:util";
 import prettier from "prettier";
 import { rs } from "../../src";
 import { ast_debug_print } from "../../src/debug/print";
@@ -91,7 +92,7 @@ export function rs_createREPL(
 			current = spawn_repl();
 		});
 		function spawn_repl() {
-			return spawn(process.argv[0], [...process.execArgv, process.argv.slice(1)] as any, {
+			return fork(process.argv[1], {
 				env: { isChildProcess: "1" },
 				stdio: "inherit",
 			});
@@ -198,9 +199,17 @@ export function rs_print_samples(
 		const TIMER_START = Date.now();
 
 		const OUTDIR = path.resolve(printed_dir, path.relative(file.dir, path.dirname(file.path)));
+		try {
+			var ast = rs_parseFile(file.content, file.cmd);
+		} catch (e) {
+			// if (is_object(e) && "parserState" in e) delete e.parserState;
+			writeOutFile(file.name, e);
+			tests_times.set(file.cmd, Date.now() - TIMER_START);
+			return;
+		}
 
 		const context = {
-			ast: rs_parseFile(file.content, file.cmd),
+			ast,
 			name: file.name.slice(0, -3),
 			outdir: OUTDIR,
 		};
@@ -210,22 +219,8 @@ export function rs_print_samples(
 				let extra = "";
 				const Output = fn((msg) => void (extra += msg.replace(/^|\n\s*/g, "\n// ")));
 				extra += getEndCommentInfo(extraLinksToOutput);
-				each(files, (filepath, K) => {
-					const content = Output[K];
-					if (filepath && content) {
-						const EXT = path.extname(filepath);
-						const TARGET_PATH = path.join(OUTDIR, filepath);
-						const is_JSON = EXT === ".json";
-						known_files.add(TARGET_PATH);
-						write_file(
-							TARGET_PATH,
-							content instanceof Error
-								? color.unstyle(content.toString() + content.stack)
-								: is_JSON
-								? JSONstringify(content)
-								: content.toString() + extra
-						);
-					}
+				each(files, (fileName, outputKey) => {
+					writeOutFile(fileName, Output[outputKey], extra);
 				});
 				function getEndCommentInfo(extraLinksToOutput: { [key: string]: string }) {
 					let str = "\n" + cmd_comment(file.path, OUTDIR, "source");
@@ -235,6 +230,40 @@ export function rs_print_samples(
 					return str;
 				}
 			}, context);
+		}
+
+		function writeOutFile(fileName: string | false, content: any, extra: string = "") {
+			if (fileName && (content || content === "")) {
+				const TARGET_PATH = path.join(OUTDIR, fileName);
+				known_files.add(TARGET_PATH);
+				write_file(
+					TARGET_PATH,
+					content instanceof Error
+						? color.unstyle(
+								"> Error.toString()\n> " +
+									content.toString() +
+									"> inspect(Error)\n> " +
+									inspect(content, {
+										getters: true,
+										showHidden: true,
+										depth: 10,
+										colors: false,
+										maxArrayLength: 100,
+										breakLength: 140,
+										sorted: false,
+									})
+						  )
+						: // JSONstringify({
+						// 	name: content.name,
+						// 	message: content.message,
+						// 	stack: content.stack,
+						// 	...content,
+						// })
+						path.extname(fileName) === ".json"
+						? JSONstringify(content)
+						: content.toString() + extra
+				);
+			}
 		}
 
 		tests_times.set(file.cmd, Date.now() - TIMER_START);
@@ -248,7 +277,7 @@ export function rs_print_samples(
 			for (const { 0: cmd, 1: t } of sorted_times) if (t > 500) console.log(`${color.red(pretty_timespan(t))} ${color.grey(cmd)}`);
 		}
 
-		remove_unknown_files(printed_dir, known_files);
+		return remove_unknown_files(printed_dir, known_files);
 	});
 }
 

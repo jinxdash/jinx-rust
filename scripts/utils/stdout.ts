@@ -45,7 +45,7 @@ export function create_console_line(str?: string) {
 		dispatch() {
 			if (enabled) {
 				_moveTo(items.indexOf(this));
-				clearLine(process.stdout, 1);
+				clearLine(process.stdout, 0);
 				process.stdout.write(current);
 			} else {
 				enabled = true;

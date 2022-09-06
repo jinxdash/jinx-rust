@@ -1,14 +1,15 @@
 import { AST_NODE_TYPES as NT, simpleTraverse, TSESTree } from "@typescript-eslint/typescript-estree";
-import { build, Options } from "tsup";
-import { assert, exit, getLineStarts, urlAt } from "../src/utils/common";
+import { build, Options as tsup_Options } from "tsup";
+import { assert, color, ColorFn, exit, getLineStarts, pretty_timespan, time, time_since, urlAt } from "../src/utils/common";
 import { overrideDefaultError } from "../src/utils/debug";
 import { createStripPlugin } from "./utils/build";
-import { JSONstringify } from "./utils/common";
-import { update_file, write_file } from "./utils/fs";
+import { JSONstringify, remove_unknown_files } from "./utils/common";
+import { read_file, update_file, write_file } from "./utils/fs";
 import {
 	getIdentifierName,
 	getParsedNodesFile,
 	insert_at,
+	ParsedNodesFile,
 	prepend_to,
 	remove_node,
 	replace_node,
@@ -17,100 +18,199 @@ import {
 	ts_edit_code,
 } from "./utils/typescript";
 
-const treeshake: Options["treeshake"] = {
-	preset: "smallest",
-	moduleSideEffects: false,
-	propertyReadSideEffects: false,
-	tryCatchDeoptimization: false,
-	unknownGlobalSideEffects: false,
-};
+const MAIN_OUT_DIR = "dist";
+const MAIN_OUT_PATH = MAIN_OUT_DIR + "/index";
+
+const UTILS_OUT_DIR = "utils";
+const UTILS_OUT_PATH = UTILS_OUT_DIR + "/index";
+
+const known_files = new Set<string>();
+function addKnownFile(filepath: string) {
+	known_files.add(filepath);
+	return filepath;
+}
+
 overrideDefaultError();
 
-const Spec = getParsedNodesFile();
-const NodeTypes = new Set(Spec.Nodes.map((Node) => Node.name));
-assert(NodeTypes.has("Attribute"));
-
-await Promise.all([
-	build({
-		tsconfig: "tsconfig.build.json",
-		entry: ["src/index.ts"],
-		dts: { resolve: true },
+function createBundle(entry: string, options: Partial<tsup_Options>) {
+	return build({
+		entry: [entry],
 		format: ["esm", "cjs"],
+		tsconfig: "tsconfig.build.json",
 		plugins: [createStripPlugin({ labels: ["__DEV__"], functionCalls: ["devonly"] })],
-		treeshake,
-	}).then(() =>
-		Promise.all([
-			...["dist/index.js", "dist/index.cjs"].map((filepath) =>
-				update_file(filepath, (prev) => transform_parser(prev), { sync: false, prettier: true })
-			),
-			update_file(
-				"dist/index.d.ts",
-				(prev) =>
-					ts_edit_code(prev, function* (body) {
-						for (const node of body) {
-							if (node.type === NT.ClassDeclaration) {
-								const target = Spec.Nodes.find((Node) => Node.name === node.id.name);
-								const l = target?.comments.length;
-								if (l) {
-									yield prepend_to(
-										node,
-										(l === 1 ? "/** " : "/**\n * ") +
-											target.comments.map((c) => c.replace(/\*\//g, "* /").trim()).join("  \n * ") +
-											(l === 1 ? " */\n" : "\n */\n")
-									);
-								}
+		treeshake: {
+			preset: "smallest",
+			moduleSideEffects: false,
+			propertyReadSideEffects: false,
+			tryCatchDeoptimization: false,
+			unknownGlobalSideEffects: false,
+		},
+		...options,
+	});
+}
+
+function update_bundle_file(filepath: string, content: string | ((prev: string) => string)): Promise<boolean> {
+	return update_file(addKnownFile(filepath), content, { sync: false, prettier: true });
+}
+function format_bundle_file(filepath: string): Promise<boolean> {
+	return update_bundle_file(filepath, (v) => v);
+}
+
+await build_steps({
+	codegen: () => import("./parser.codegen"),
+	bundle: () => [
+		createBundle("src/index.ts", { dts: { resolve: true } }),
+		createBundle("src/utils/ast/index.ts", { outDir: UTILS_OUT_DIR }),
+		createBundle("src/utils/ast/index.ts", { outDir: UTILS_OUT_DIR, dts: { only: true }, external: [/\/parser\/?/] }),
+		write_file(
+			addKnownFile(`${UTILS_OUT_DIR}/package.json`),
+			JSONstringify({
+				type: "module",
+				main: "./index.cjs",
+				module: "./index.js",
+				types: "./index.d.ts",
+			}),
+			{ sync: false }
+		),
+	],
+	transform: () => {
+		const Spec = getParsedNodesFile();
+		return [
+			update_bundle_file(MAIN_OUT_PATH + ".js", (prev) => transform_parser(Spec, prev)),
+			update_bundle_file(MAIN_OUT_PATH + ".cjs", (prev) => transform_parser(Spec, prev)),
+			update_bundle_file(MAIN_OUT_PATH + ".d.ts", (prev) =>
+				ts_edit_code(prev, function* (body) {
+					for (const node of body) {
+						if (node.type === NT.ClassDeclaration) {
+							const target = Spec.Nodes.find((Node) => Node.name === node.id.name);
+							const l = target?.comments.length;
+							if (l) {
+								yield prepend_to(
+									node,
+									(l === 1 ? "/** " : "/**\n * ") +
+										target.comments.map((c) => c.replace(/\*\//g, "* /").trim()).join("  \n * ") +
+										(l === 1 ? " */\n" : "\n */\n")
+								);
 							}
 						}
-					}).replaceAll("declare const enum", "declare enum"),
-				{
-					sync: false,
-					prettier: false,
-				}
+					}
+				}).replaceAll("declare const enum", "declare enum")
 			),
-		])
-	),
-	build({
-		tsconfig: "tsconfig.build.json",
-		entry: ["src/utils/ast/index.ts"],
-		format: ["esm", "cjs"],
-		outDir: "utils",
-		plugins: [createStripPlugin({ labels: ["__DEV__"], functionCalls: ["devonly"] })],
-		treeshake,
-	}),
-	build({
-		tsconfig: "tsconfig.build.json",
-		entry: ["src/utils/ast/index.ts"],
-		dts: { only: true },
-		outDir: "utils",
-		external: [/\/parser\/?/],
-	}).then(() =>
-		update_file("utils/index.d.ts", (prev) => prev.replaceAll("../../parser/nodes", "../dist/index").replace(/\{\n/g, "{ "), {
-			sync: false,
-			prettier: true,
-		})
-	),
-	write_file(
-		`utils/package.json`,
-		JSONstringify({
-			type: "module",
-			main: "./index.cjs",
-			module: "./index.js",
-			types: "./index.d.ts",
-		}),
-		{ sync: false, prettier: true }
-	),
-]);
+			format_bundle_file(UTILS_OUT_PATH + ".js"),
+			format_bundle_file(UTILS_OUT_PATH + ".cjs"),
+			update_bundle_file(UTILS_OUT_PATH + ".d.ts", (prev) =>
+				prev.replaceAll("../../parser/nodes", `../` + MAIN_OUT_PATH).replace(/\{\n/g, "{ ")
+			),
+		];
+	},
+	test: () => import("../tests/test.build"),
+	copy: function* () {
+		for (const [inpath, outname] of [
+			[MAIN_OUT_PATH, "index"],
+			[UTILS_OUT_PATH, "utils"],
+		]) {
+			for (const ext of ["js", "d.ts"]) {
+				const esmCode = read_file(inpath + "." + ext);
+				const target = "tests/bundle/" + outname + ".";
 
-function transform_parser(code: string) {
+				yield write_file(target + ext, esmCode, { sync: false });
+
+				if (ext === "js") {
+					assert(/export {[\w\s,$]*};?\s*$/.test(esmCode));
+					const cjs = read_file(inpath + "." + "cjs");
+					yield write_file(
+						target + "cjs",
+						cjs.slice(0, cjs.indexOf("//")) +
+							trim_same_start(
+								cjs.slice(cjs.indexOf("//")),
+								esmCode.slice(esmCode.indexOf("//")).trimEnd() //
+							).trim(),
+						{ sync: false }
+					);
+				}
+			}
+		}
+	},
+	cleanup: () => remove_unknown_files(["dist", "utils"], known_files),
+});
+
+async function build_steps(obj: { [step: string]: () => Promise<any> | Iterable<Promise<any>> }) {
+	const keys = Object.keys(obj);
+	const length = keys.length;
+	const name = process.env.npm_package_name ?? "unknown";
+	const times: { [step: string]: number } = {};
+	const b = `Build script ${color.white(name)}`;
+	console.log(padEndSection(boldYellow(b), ":", color.grey));
+	const INIT_TIME = time();
+	for (let i = 0; i < keys.length; i++) {
+		const step = keys[i];
+		console.log(
+			padEndSection(boldYellow(`${color.grey(tr(i, color.yellow))} ${x(i)} ${color.white(step.toUpperCase())}`), ":", color.grey)
+		);
+		const START_TIME = time();
+		const v = obj[keys[i]]();
+		if (Symbol.iterator in v) await Promise.all([...v]);
+		else await v;
+		await new Promise((r) => setImmediate(() => setTimeout(r, 17)));
+		times[step] = time_since(START_TIME);
+		if (times[step] > 1000) console.log(color.grey(`Completed ${step.toUpperCase()} in ${pretty_timespan(times[step])}`));
+	}
+
+	console.log(
+		padEndSection(boldYellow(tr(0) + ` ${x(length)} Completed build in ${pretty_timespan(time_since(INIT_TIME))}`), ":", color.grey)
+	);
+
+	function padEndSection(msg: string, dash = "- ", dashColor: ColorFn = (str) => str) {
+		const length = color.unstyledLength(msg);
+		return (
+			msg +
+			" ".repeat(dash.length - (length % dash.length)) +
+			dashColor(dash.repeat(Math.max(0, Math.round((50 - length) / dash.length))))
+		);
+	}
+
+	function boldYellow(str: string) {
+		return color.yellow(color.bold(str));
+	}
+	function tr(l: number, color: ColorFn = (str) => str) {
+		const c = ">";
+		return c.repeat(l) + color(c) + c.repeat(length - (l + 1));
+	}
+	function x(i: number) {
+		return `(${i}/${length})`;
+	}
+}
+
+function trim_same_start(code: string, comparator: string): string {
+	var i = 0,
+		j = 0;
+	while (i < code.length && j < comparator.length && code.charCodeAt(i++) === comparator.charCodeAt(j++));
+	return code.slice(code.lastIndexOf("\n", i));
+}
+function trim_same_ending(code: string, comparator: string): string {
+	var i = code.length,
+		j = comparator.length;
+	while (i-- > 0 && j-- > 0 && code.charCodeAt(i) === comparator.charCodeAt(j));
+	return code.slice(0, 1 + i);
+}
+
+function transform_parser(Spec: ParsedNodesFile, code: string) {
 	// const { ast } = tsParse(code, { range: false });
 	// update_file("bundle.original.temp.json", JSONstringify(ast.body), { force: true, prettier: true });
 	// return;
 	const ARGUMENTS = "ARGUMENTS";
 	const READ_NODE = "READ_NODE";
 	const mixinNodeReader = `mixinNodeReader`;
+
+	const NodeTypes = new Set(Spec.Nodes.map((Node) => Node.name));
 	const toNodeType = createMapper(Spec.Nodes.map(({ name, nodeType }) => [name, nodeType]));
 	const readers = createMapper<{ mixin: string; parameters: string[]; body: string }>();
 	const mixins = new Map<string, { readLoc: string; readNode: string }>();
+
+	{
+		const faulty = [...NodeTypes].filter((Node) => Node.includes("$"));
+		assert(!faulty.length, "", faulty);
+	}
 
 	code = code.replace(/var ([^=;{<]+) = class /g, "class $1 "); // undo esbuild quirk
 
@@ -158,10 +258,12 @@ function transform_parser(code: string) {
 		// assertAt(body[0], false);
 	});
 
-	return code
+	code = code
 		.replace(/\/\/ prettier-ignore/g, "")
 		.replace(/\n\s+/g, "\n")
-		.replace(/\/\*[^]*?\*\//g, "");
+		.replace(/\/\*[^]*?\*\//g, ""); // remove enum comments (unfortunately, bundling removes actual comments)
+
+	return code;
 
 	// "class { foo: 0; }" (.ts input)
 	// "class { foo;    }" (.js output at target >ES2022)  => strip "foo;"

@@ -74,7 +74,7 @@ class StackItem extends StackLine {
 
 // prettier-ignore
 function createStack(message: string, Error_stack: string, style: Stack["style"]): Stack {
-	for (var STACK: Stack = [] as any, i = 0, stack = Error_stack.split("\n").slice(2); i < stack.length; i++) STACK[i] = new StackItem(STACK, i, stack[i]);
+	for (var STACK: Stack = [] as any, i = 0, stack = Error_stack.split("\n").slice(1); i < stack.length; i++) STACK[i] = new StackItem(STACK, i, stack[i]);
 	return (STACK.message = message), (STACK.style = style), STACK;
 }
 
@@ -106,6 +106,7 @@ export function overrideDefaultError(silent = false) {
 }
 
 export function createCustomError({
+	ctor = createCustomError as Function,
 	message = "Unknown Error",
 	editStack = (stack: StackItem[]) => {},
 	style = undefined as Stack["style"],
@@ -120,7 +121,7 @@ export function createCustomError({
 
 	const _ctx: { stack: string } = {} as any;
 
-	Error.captureStackTrace(_ctx, createCustomError);
+	Error.captureStackTrace(_ctx, ctor);
 
 	const stack = createStack(message, _ctx.stack, style);
 	Error.prepareStackTrace = function (err, calls) {
