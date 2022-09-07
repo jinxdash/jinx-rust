@@ -240,7 +240,8 @@ export function getLineChar(lineStarts: number[], index: number): { line: number
 	return { line, char: index - lineStarts[line] };
 }
 export function getTerminalWidth(fallbackWidth = 200) {
-	return globalThis?.process?.stdout?.columns ?? fallbackWidth;
+	// return globalThis?.process?.stdout?.columns ?? fallbackWidth;
+	return 100;
 }
 
 export type ColorFn = (str: string) => string;
@@ -435,7 +436,6 @@ export function is_thenable(value: any): value is PromiseLike<unknown> {
 // 		return (is_thenable(res) ? res.then(then_) : then_(res)) as any;
 // 	}
 // }
-
 
 export function resolve_then<T, R>(value: T, then: (v: Awaited<T>) => R): T extends Promise<any> ? Promise<Awaited<R>> : R {
 	return is_thenable(value) ? value.then(then) : (then(value as any) as any);

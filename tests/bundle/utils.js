@@ -144,8 +144,7 @@ function binaryInsertEach(array, items, toValue) {
     binaryInsertIn(array, items[i], toValue);
 }
 function getTerminalWidth(fallbackWidth = 200) {
-  var _a, _b;
-  return ((_b = (_a = globalThis == null ? void 0 : globalThis.process) == null ? void 0 : _a.stdout) == null ? void 0 : _b.columns) ?? fallbackWidth;
+  return 100;
 }
 var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
 var color = ((cfn, mfn) => ({
