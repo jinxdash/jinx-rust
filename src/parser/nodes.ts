@@ -482,7 +482,7 @@ export interface Delimited<K extends keyof DelimKindMap = DelimKind> { dk: Delim
 // prettier-ignore
 export interface LocArray<T extends Node = Node, K extends keyof DelimKindMap = keyof DelimKindMap> extends Array<T>, Located, Delimited<K> {}
 // prettier-ignore
-export interface DelimitedSequence<T extends Segment, TK extends keyof DelimKindMap = "()" | "[]" | "{}"> { segments: LocArray<T, TK>; }
+export interface DelimitedSequence<T extends Segment, K extends keyof DelimKindMap = "()" | "[]" | "{}"> { segments: LocArray<T, K>; }
 
 //#------------------------------------------------------+        Program        +----------------------------------------------------------.
 
@@ -742,11 +742,11 @@ type ReaOpExpr = typeof TK["+="] | typeof TK["-="] | typeof TK["*="] | typeof TK
 type OpExpr = typeof TK["+"] | typeof TK["-"] | typeof TK["*"] | typeof TK["/"] | typeof TK["%"] | typeof TK["&"] | typeof TK["|"] | typeof TK["^"] | typeof TK["<<"] | typeof TK[">>"];
 type CompExpr = typeof TK["=="] | typeof TK["!="] | typeof TK[">"] | typeof TK[">="] | typeof TK["<"] | typeof TK["<="];
 // prettier-ignore
+/**/ export const enum DelimKind { None = 0, "()" = 1, "[]" = 2, "{}" = 3, "<>" = 4, "||" = 5 }
+// prettier-ignore
 /**/ export interface DelimKindMap { "None": 0; "()": 1; "[]": 2; "{}": 3; "<>": 4; "||": 5; 0: 0; 1: 1; 2: 2; 3: 3; 4: 4; 5: 5; }
 // prettier-ignore
-/**/ export interface DelimNameMap { 0: "None"; 1: "()"; 2: "[]"; 3: "{}"; 4: "<>"; 5: "||"; }
-// prettier-ignore
-/**/ export const enum DelimKind { None, "()", "[]", "{}", "<>", "||" }
+/**/ export interface DelimNameMap { 0: "None"; 1: "()"; 2: "[]"; 3: "{}"; 4: "<>"; 5: "||"; "None": "None"; "()": "()"; "[]": "[]"; "{}": "{}"; "<>": "<>"; "||": "||";}
 
 export const enum TyMacroMatch {
 	/** undefined										*/ None,
@@ -953,8 +953,14 @@ export class ItemPath extends BaseNode<11> implements PathLike {
 	get token() { return str_TK[this.tk] as typeof str_TK[number]; }
 }
 
-/**/ export class DelimGroup<T extends Segment = Segment> extends BaseNode<13> implements DelimitedSequence<T> {
-	segments: LocArray<T, "()" | "[]" | "{}">;
+/**/ export class DelimGroup<
+		T extends Segment = Segment,
+		K extends "()" | "[]" | "{}" | DelimKindMap["()" | "[]" | "{}"] = "()" | "[]" | "{}"
+	>
+	extends BaseNode<13>
+	implements DelimitedSequence<T, K>
+{
+	segments: LocArray<T, K>;
 }
 
 //#-----------------------------------------------------+        Invocation        +--------------------------------------------------------.

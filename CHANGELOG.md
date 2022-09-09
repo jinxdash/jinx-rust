@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: add missing generic to `DelimGroup`
 - fix: Program.loc in empty files with attributes
 
 ## 0.1.6
@@ -11,7 +12,7 @@
 
 ## 0.1.5
 
-- fix: add `UnaryType` type helper ([#1](https://github.com/jinxdash/jinx-rust/pull/1))
+- fix: add missing `UnaryType` type helper ([#1](https://github.com/jinxdash/jinx-rust/pull/1))
 
 ## 0.1.4
 
