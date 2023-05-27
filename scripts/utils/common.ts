@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import prettier from "prettier";
+import { MaybePromise } from ".";
 import {
 	assert,
 	clamp,
@@ -15,7 +16,7 @@ import {
 	print_string,
 	toArray,
 } from "../../src/utils/common";
-import { cmd, fsStat, pathContains, read_file, read_json, remove_dir, remove_file, update_file, WriteOptions, write_ErrTemp } from "./fs";
+import { cmd, fsStat, pathContains, read_file, read_json, remove_dir, remove_file, update_file, write_ErrTemp, WriteOptions } from "./fs";
 
 const default_prettier_config: prettier.Options = { parser: "typescript", ...read_json("package.json").prettier };
 function getPrintWidth() {
@@ -278,7 +279,9 @@ function formFile(filepath: string, dir: string): File {
 	};
 }
 
-function _each_x_file(ext: string, dirs: string[], each_file: (file: File) => void, filter_out: string[] = []) {
+type EachFileFn = (file: File) => MaybePromise<void>;
+
+function _each_x_file(ext: string, dirs: string[], each_file: EachFileFn, filter_out: string[] = []) {
 	if (dirs.length > 1) assert(dirs.every((dir, i, a) => i === 0 || (!pathContains(dir, a[i - 1]) && !pathContains(a[i - 1], dir))));
 	return Promise_map(dirs, (dir) =>
 		crawl_directory(dir, ext, filter_out).then((files) => files.sort().map((filepath) => formFile(filepath, dir)))
@@ -292,7 +295,7 @@ function _each_x_file(ext: string, dirs: string[], each_file: (file: File) => vo
 						.then((content) => {
 							unread.delete(file);
 							file.content = content;
-							each_file(file);
+							return each_file(file);
 						})
 						.catch(function (error) {
 							if (error.code !== "EMFILE") throw error;
@@ -303,10 +306,10 @@ function _each_x_file(ext: string, dirs: string[], each_file: (file: File) => vo
 	});
 }
 
-export async function for_each_rs_file(crates: string[], each_file: (file: File) => void, filter_out: string[] = []) {
+export async function for_each_rs_file(crates: string[], each_file: EachFileFn, filter_out: string[] = []) {
 	return _each_x_file(".rs", crates, each_file, filter_out);
 }
 
-export async function for_each_ts_file(dir: string, each_file: (file: File) => void, filter_out: string[] = []) {
+export async function for_each_ts_file(dir: string, each_file: EachFileFn, filter_out: string[] = []) {
 	return _each_x_file(".ts", [dir], each_file, filter_out);
 }

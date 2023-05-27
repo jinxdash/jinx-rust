@@ -9,9 +9,11 @@ import type { Program } from "../../src/parser/nodes";
 import { ArrayProps } from "../../src/utils/ast";
 import { assert, color, each, pretty_timespan, toArray, trycatch } from "../../src/utils/common";
 import { overrideDefaultError } from "../../src/utils/debug";
-import { cmd_comment, for_each_rs_file, JSONstringify, remove_unknown_files } from "./common";
+import { JSONstringify, cmd_comment, for_each_rs_file, remove_unknown_files } from "./common";
 import { fsStatSync, pathContains, watch_dir, write_file } from "./fs";
 import { create_console_line } from "./stdout";
+
+export type MaybePromise<T> = T | Promise<T>;
 
 overrideDefaultError(true);
 
@@ -106,24 +108,24 @@ interface PrintOpts {
 }
 
 export function createParserPrinter(): PrinterFn {
-	return (updateOutput, { name, ast }) => {
+	return (updateOutput, { name, ast }) =>
 		updateOutput({ printed: `${name}.p.rs` }, (addInfo) => {
 			if (!ast.program.__devonly) addInfo("Program.__devonly: undefined");
 			else if (!ast.program.__devonly.stats) addInfo("Program.__devonly.stats: undefined");
 			else each(ast.program.__devonly.stats, (value, key) => addInfo(`${key}: ${value}`));
 			return { printed: ast_debug_print(ast) };
 		});
-	};
 }
 
 export function createASTtoJSONPrinter(): PrinterFn {
-	return (updateOutput, { name, ast }) => {
-		updateOutput({ ast: `${name}.json` }, () => ({ ast }));
-	};
+	return (updateOutput, { name, ast }) => updateOutput({ ast: `${name}.json` }, () => ({ ast }));
 }
 
-export function createPrettierPrinter(prettier_config: prettier.Config & { parser: string; plugins: [{}] }, printDocs = false): PrinterFn {
-	return (updateOutput, { name, ast, outdir }) => {
+export function createPrettierPrinter(
+	prettier_config: prettier.Config & { parser: string; plugins: [{}] },
+	{ printDocs = false, prettierInstance = prettier }
+): PrinterFn {
+	return (updateOutput, { name, ast, outdir }) =>
 		updateOutput(
 			{
 				formatted: `${name}.f.rs`,
@@ -160,11 +162,11 @@ export function createPrettierPrinter(prettier_config: prettier.Config & { parse
 				}
 
 				function rs_prettier_format(code: string, filepath: string) {
-					return prettier.format(code, getPrettierConfig(filepath));
+					return prettierInstance.format(code, getPrettierConfig(filepath));
 				}
 
 				function rs_prettier_format_debug(code: string, filepath: string) {
-					const { __debug } = prettier as any;
+					const { __debug } = prettierInstance as any;
 					const docs = __debug.printToDoc(code, getPrettierConfig(filepath));
 					return __debug.formatDoc(docs, { printWidth: 100, tabWidth: 2 }) as string;
 					// const str = __debug.printDocToString(docs, config).formatted as string;
@@ -172,17 +174,19 @@ export function createPrettierPrinter(prettier_config: prettier.Config & { parse
 				}
 			}
 		);
-	};
 }
 
 type ContentOutput = false | string | object | Error;
 type UpdateFn = <T extends { [key: string]: string | false }>(
 	files: T,
-	fn: (add_infoToOutput: (msg: string) => void) => { [K in keyof T]?: ContentOutput },
+	fn: (add_infoToOutput: (msg: string) => void) => MaybePromise<{ [K in keyof T]?: ContentOutput }>,
 	extraLinksToOutput?: { [key: string]: string }
-) => void;
+) => Promise<void>;
 
-export type PrinterFn = (addOutput: UpdateFn, context: { ast: ReturnType<typeof rs_parseFile>; name: string; outdir: string }) => void;
+export type PrinterFn = (
+	addOutput: UpdateFn,
+	context: { ast: ReturnType<typeof rs_parseFile>; name: string; outdir: string }
+) => Promise<void>;
 
 export function rs_print_samples(
 	samples_dir: string[],
@@ -194,7 +198,7 @@ export function rs_print_samples(
 	const tests_times = new Map<string, number>();
 	const known_files = new Set<string>();
 
-	return for_each_rs_file(samples_dir, function (file) {
+	return for_each_rs_file(samples_dir, async function (file) {
 		linelog.set(color.grey(`Printing sample: ${file.cmd}`));
 		const TIMER_START = Date.now();
 
@@ -215,9 +219,9 @@ export function rs_print_samples(
 		};
 
 		for (const f of toArray(printer)) {
-			f(function (files, fn, extraLinksToOutput = {}) {
+			await f(async function (files, fn, extraLinksToOutput = {}) {
 				let extra = "";
-				const Output = fn((msg) => void (extra += msg.replace(/^|\n\s*/g, "\n// ")));
+				const Output = await fn((msg) => void (extra += msg.replace(/^|\n\s*/g, "\n// ")));
 				extra += getEndCommentInfo(extraLinksToOutput);
 				each(files, (fileName, outputKey) => {
 					writeOutFile(fileName, Output[outputKey], extra);

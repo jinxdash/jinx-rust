@@ -1,10 +1,11 @@
 import { AST_NODE_TYPES as NT, simpleTraverse } from "@typescript-eslint/typescript-estree";
 import { Options } from "tsup";
+import { MaybePromise } from ".";
 import { assert, color, exit, last_of } from "../../src/utils/common";
 import { File, for_each_rs_file } from "./common";
 import { read_file, write_file } from "./fs";
 import { create_console_line } from "./stdout";
-import { replace_node, TSEdit, ts_edit_code } from "./typescript";
+import { TSEdit, replace_node, ts_edit_code } from "./typescript";
 
 export function createStripPlugin({
 	labels = [],
@@ -53,18 +54,18 @@ export function createStripPlugin({
 export function testBuilds<T>(
 	ts: T,
 	builds: { [format: string]: T },
-	toValue: (file: File, module: T) => { ext: string; content: string },
+	toValue: (file: File, module: T) => MaybePromise<{ ext: string; content: string }>,
 	samples: string[]
 ) {
 	const line_log = create_console_line("...");
 	const failed: string[] = [];
 	let total = 0;
-	return for_each_rs_file(samples, (file) => {
+	return for_each_rs_file(samples, async (file) => {
 		line_log.set(color.grey(`(${total}) ` + file.cmd));
 
-		var expected = toValue(file, ts);
+		var expected = await toValue(file, ts);
 		for (var format in builds) {
-			var actual = toValue(file, builds[format]);
+			var actual = await toValue(file, builds[format]);
 
 			if (expected.content !== actual.content) {
 				if (failed.push(`${file.cmd} (${format})`) === 1) {
